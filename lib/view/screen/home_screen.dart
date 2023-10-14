@@ -17,23 +17,15 @@ class HomeScreen extends ConsumerWidget {
         onReorder: (oldIndex, newIndex) {
           ref.read(taskListProvider.notifier).reorder(oldIndex, newIndex);
         },
-        children: [
-          for (var status in TaskStatus.values) ...[
-            // セクションヘッダー
-            ListTile(
-              key: ValueKey(status),
-              title: Text(status.toString().split('.').last),
-              tileColor: Colors.grey[200],
-              enabled: false,
-            ),
-            // セクションのアイテム
-            for (var task in tasks.where((t) => t.status == status))
-              ListTile(
-                key: ValueKey(task),
-                title: Text(task.name),
-              ),
-          ]
-        ],
+        children: tasks
+            .map((task) => ListTile(
+                  key: ValueKey(task),
+                  title: Text(task.name),
+                  subtitle: !task.isHeader ? Text(task.getSubTitle()) : null,
+                  tileColor: task.isHeader ? Colors.grey[200] : null,
+                  enabled: task.isHeader ? false : true,
+                ))
+            .toList(),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
