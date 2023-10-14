@@ -1,4 +1,4 @@
-enum TaskStatus { newTask, inProgress, completed, paused }
+enum TaskStatus { newTask, inProgress, paused, completed }
 
 class Task {
   final String name;
