@@ -59,4 +59,8 @@ class TaskNotifier extends StateNotifier<List<Task>> {
 
     task.status = newStatus;
   }
+
+  void removeTask(Task task) {
+    state = state.where((t) => t != task).toList();
+  }
 }

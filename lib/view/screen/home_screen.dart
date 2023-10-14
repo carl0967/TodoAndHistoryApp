@@ -24,6 +24,20 @@ class HomeScreen extends ConsumerWidget {
                   subtitle: !task.isHeader ? Text(task.getSubTitle()) : null,
                   tileColor: task.isHeader ? Colors.grey[200] : null,
                   enabled: task.isHeader ? false : true,
+                  trailing: !task.isHeader
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: 16.0),
+                          child: IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () async {
+                              bool? shouldDelete = await _showDeleteConfirmationDialog(context);
+                              if (shouldDelete == true) {
+                                ref.read(taskListProvider.notifier).removeTask(task);
+                              }
+                            },
+                          ),
+                        )
+                      : null,
                 ))
             .toList(),
       ),
@@ -37,6 +51,31 @@ class HomeScreen extends ConsumerWidget {
         child: Icon(Icons.add),
         tooltip: 'タスクを追加',
       ),
+    );
+  }
+
+  Future<bool?> _showDeleteConfirmationDialog(BuildContext context) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("タスクを削除しますか？"),
+          actions: <Widget>[
+            TextButton(
+              child: Text("キャンセル"),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              child: Text("削除"),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
