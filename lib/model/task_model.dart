@@ -30,10 +30,12 @@ class Task {
   Map<String, dynamic> toJson() => {
         'name': name,
         'status': status.index,
+        'isHeader': isHeader,
       };
 
   static Task fromJson(Map<String, dynamic> json) => Task(
         json['name'].toString(),
         status: TaskStatus.values[json['status'] as int],
+        isHeader: json['isHeader'] as bool,
       );
 }

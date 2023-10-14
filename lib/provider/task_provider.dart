@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/task_model.dart';
 
@@ -9,7 +12,11 @@ final initialTasks = [
   Task("完了", status: TaskStatus.completed, isHeader: true),
 ];
 
-final taskListProvider = StateNotifierProvider<TaskNotifier, List<Task>>((ref) => TaskNotifier());
+final taskListProvider = StateNotifierProvider<TaskNotifier, List<Task>>((ref) {
+  var taskNotifier = TaskNotifier();
+  taskNotifier.loadTasksFromPrefs();
+  return taskNotifier;
+});
 
 final taskTimerProvider = StateProvider<int>((ref) => 0);
 
@@ -18,6 +25,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
   void addTask(Task task) {
     //新規の位置に追加
     state = [...state]..insert(1, task);
+    saveTasksToPrefs();
   }
 
   void reorder(int oldIndex, int newIndex) {
@@ -41,6 +49,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     if (oldStatus != newStatus) {
       _changeStatus(item, newStatus);
     }
+    saveTasksToPrefs();
   }
 
   void _changeStatus(Task task, TaskStatus newStatus) {
@@ -62,5 +71,24 @@ class TaskNotifier extends StateNotifier<List<Task>> {
 
   void removeTask(Task task) {
     state = state.where((t) => t != task).toList();
+    saveTasksToPrefs();
+  }
+
+  Future<void> saveTasksToPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final tasksJson = jsonEncode(state.map((task) => task.toJson()).toList());
+    await prefs.setString('tasks', tasksJson);
+  }
+
+  Future<void> loadTasksFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final tasksJson = prefs.getString('tasks');
+    if (tasksJson != null) {
+      final List<dynamic> tasksList = jsonDecode(tasksJson) as List;
+      state = tasksList.map((taskMap) => Task.fromJson(taskMap as Map<String, dynamic>)).toList();
+    }
+    if (state.length == 0) {
+      state = initialTasks;
+    }
   }
 }
