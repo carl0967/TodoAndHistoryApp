@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 enum TaskStatus { newTask, inProgress, paused, completed }
 
 class Task {
@@ -9,7 +11,8 @@ class Task {
   TaskStatus status;
   bool isHeader = false;
 
-  Task(this.name, {this.status = TaskStatus.newTask, this.isHeader = false});
+  Task(this.name,
+      {this.status = TaskStatus.newTask, this.isHeader = false, this.elapsedSecond = 0});
 
   String getDuration() {
     var duration = Duration(seconds: elapsedSecond);
@@ -22,8 +25,8 @@ class Task {
   }
 
   String getSubTitle() {
-    var text = startTime != null ? "開始:" + startTime.toString() : "";
-    text = endTime != null ? "経過時刻:" + getDuration() : text;
+    var text = startTime != null ? "開始:" + DateFormat('HH:mm').format(startTime!) : "";
+    text = status == TaskStatus.completed ? "経過時刻:" + getDuration() : text;
     return text;
   }
 
@@ -31,11 +34,13 @@ class Task {
         'name': name,
         'status': status.index,
         'isHeader': isHeader,
+        'elapsedSecond': elapsedSecond,
       };
 
   static Task fromJson(Map<String, dynamic> json) => Task(
         json['name'].toString(),
         status: TaskStatus.values[json['status'] as int],
         isHeader: json['isHeader'] as bool,
+        elapsedSecond: json['elapsedSecond'] as int,
       );
 }
