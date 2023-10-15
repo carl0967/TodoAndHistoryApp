@@ -48,6 +48,7 @@ class TaskDetailScreen extends ConsumerWidget {
                   SizedBox(height: 16.0),
                   Expanded(
                     child: TextField(
+                      minLines: 30,
                       controller: _controller,
                       maxLines: null,
                       keyboardType: TextInputType.multiline,
