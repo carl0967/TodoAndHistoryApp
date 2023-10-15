@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:src/view/screen/home_screen.dart';
+import 'package:src/view/screen/tab_screen.dart';
 
 void main() {
   runApp(ProviderScope(child: MyApp())); // RiverpodのProviderScopeでアプリをラップします
@@ -15,7 +15,7 @@ class MyApp extends ConsumerWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomeScreen(),
+      home: TabScreen(),
     );
   }
 }

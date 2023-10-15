@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../model/task_model.dart';
 import '../../provider/task_provider.dart';
 
-class HomeScreen extends ConsumerWidget {
+class AllTaskScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var tasks = ref.watch(taskListProvider);
@@ -15,7 +15,6 @@ class HomeScreen extends ConsumerWidget {
           ref.read(taskListProvider.notifier).reorder(oldIndex, newIndex);
         },
         children: tasks
-            .where((task) => task.isVisible)
             .map((task) => ListTile(
                   key: ValueKey(task),
                   title: Text(task.name),

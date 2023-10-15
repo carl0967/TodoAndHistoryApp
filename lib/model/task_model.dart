@@ -16,7 +16,9 @@ class Task {
       {this.status = TaskStatus.newTask,
       this.isHeader = false,
       this.elapsedSecond = 0,
-      this.isVisible = true});
+      this.isVisible = true,
+      this.startTime = null,
+      this.endTime = null});
 
   String getDuration() {
     var duration = Duration(seconds: elapsedSecond);
@@ -30,7 +32,7 @@ class Task {
 
   String? getSubTitle() {
     var text = startTime != null ? "開始:" + DateFormat('HH:mm').format(startTime!) : "";
-    text = status == TaskStatus.completed ? "経過時刻:" + getDuration() : text;
+    text = status == TaskStatus.completed ? "実績:" + getDuration() : text;
     return text == "" ? null : text;
   }
 
@@ -40,6 +42,8 @@ class Task {
         'isHeader': isHeader,
         'elapsedSecond': elapsedSecond,
         'isVisible': isVisible,
+        'startTime': startTime?.toIso8601String(), // DateTimeをISO8601文字列に変換
+        'endTime': endTime?.toIso8601String(),
       };
 
   static Task fromJson(Map<String, dynamic> json) => Task(
@@ -48,5 +52,7 @@ class Task {
         isHeader: json['isHeader'] as bool,
         elapsedSecond: json['elapsedSecond'] as int,
         isVisible: json['isVisible'] as bool,
+        startTime: json['startTime'] != null ? DateTime.parse(json['startTime'] as String) : null,
+        endTime: json['endTime'] != null ? DateTime.parse(json['endTime'] as String) : null,
       );
 }

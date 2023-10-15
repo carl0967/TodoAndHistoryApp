@@ -18,10 +18,8 @@ final taskListProvider = StateNotifierProvider<TaskNotifier, List<Task>>((ref) {
   return taskNotifier;
 });
 
-final taskTimerProvider = StateProvider<int>((ref) => 0);
-
 class TaskNotifier extends StateNotifier<List<Task>> {
-  TaskNotifier() : super(initialTasks);
+  TaskNotifier() : super([]);
   void addTask(Task task) {
     //新規の位置に追加
     state = [...state]..insert(1, task);
@@ -56,11 +54,15 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     if (newStatus == TaskStatus.inProgress) {
       task.startTime = DateTime.now();
     } else if (newStatus == TaskStatus.completed) {
+      // →完了
       task.endTime = DateTime.now();
-      final duration = DateTime.now().difference(task.startTime!);
-      print("経過時間: ${duration.inSeconds} 秒");
-      task.elapsedSecond += duration.inSeconds;
+      if (task.startTime != null) {
+        final duration = DateTime.now().difference(task.startTime!);
+        print("経過時間: ${duration.inSeconds} 秒");
+        task.elapsedSecond += duration.inSeconds;
+      }
     } else if (newStatus == TaskStatus.paused && task.status == TaskStatus.inProgress) {
+      // 進行中→中断
       final duration = DateTime.now().difference(task.startTime!);
       print("経過時間: ${duration.inSeconds} 秒");
       task.elapsedSecond += duration.inSeconds;
@@ -76,7 +78,10 @@ class TaskNotifier extends StateNotifier<List<Task>> {
 
   void changeVisible(Task task, bool visible) {
     task.isVisible = visible;
+    state.remove(task);
+    state.add(task);
     state = state.toList();
+    saveTasksToPrefs();
   }
 
   Future<void> saveTasksToPrefs() async {
