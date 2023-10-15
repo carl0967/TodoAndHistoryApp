@@ -18,6 +18,7 @@ class HomeScreen extends ConsumerWidget {
           ref.read(taskListProvider.notifier).reorder(oldIndex, newIndex);
         },
         children: tasks
+            .where((task) => task.isVisible)
             .map((task) => ListTile(
                   key: ValueKey(task),
                   title: Text(task.name),
@@ -27,16 +28,25 @@ class HomeScreen extends ConsumerWidget {
                   tileColor: task.isHeader ? Colors.grey[200] : null,
                   enabled: task.isHeader ? false : true,
                   trailing: !task.isHeader
-                      ? Padding(
-                          padding: const EdgeInsets.only(right: 16.0),
-                          child: IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () async {
-                              bool? shouldDelete = await _showDeleteConfirmationDialog(context);
-                              if (shouldDelete == true) {
-                                ref.read(taskListProvider.notifier).removeTask(task);
-                              }
-                            },
+                      ? SizedBox(
+                          width: 96,
+                          child: Row(
+                            children: [
+                              IconButton(
+                                  onPressed: () {
+                                    ref.read(taskListProvider.notifier).changeVisible(task, false);
+                                  },
+                                  icon: const Icon(Icons.visibility_off)),
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () async {
+                                  bool? shouldDelete = await _showDeleteConfirmationDialog(context);
+                                  if (shouldDelete == true) {
+                                    ref.read(taskListProvider.notifier).removeTask(task);
+                                  }
+                                },
+                              ),
+                            ],
                           ),
                         )
                       : null,
@@ -113,14 +123,5 @@ class HomeScreen extends ConsumerWidget {
         );
       },
     );
-  }
-
-  List<Task> _reorderList(List<Task> items, int oldIndex, int newIndex) {
-    if (newIndex > oldIndex) {
-      newIndex -= 1;
-    }
-    final item = items.removeAt(oldIndex);
-    items.insert(newIndex, item);
-    return items;
   }
 }

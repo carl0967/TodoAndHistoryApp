@@ -10,9 +10,13 @@ class Task {
 
   TaskStatus status;
   bool isHeader = false;
+  bool isVisible = true;
 
   Task(this.name,
-      {this.status = TaskStatus.newTask, this.isHeader = false, this.elapsedSecond = 0});
+      {this.status = TaskStatus.newTask,
+      this.isHeader = false,
+      this.elapsedSecond = 0,
+      this.isVisible = true});
 
   String getDuration() {
     var duration = Duration(seconds: elapsedSecond);
@@ -35,6 +39,7 @@ class Task {
         'status': status.index,
         'isHeader': isHeader,
         'elapsedSecond': elapsedSecond,
+        'isVisible': isVisible,
       };
 
   static Task fromJson(Map<String, dynamic> json) => Task(
@@ -42,5 +47,6 @@ class Task {
         status: TaskStatus.values[json['status'] as int],
         isHeader: json['isHeader'] as bool,
         elapsedSecond: json['elapsedSecond'] as int,
+        isVisible: json['isVisible'] as bool,
       );
 }

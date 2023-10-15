@@ -74,6 +74,11 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     saveTasksToPrefs();
   }
 
+  void changeVisible(Task task, bool visible) {
+    task.isVisible = visible;
+    state = state.toList();
+  }
+
   Future<void> saveTasksToPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     final tasksJson = jsonEncode(state.map((task) => task.toJson()).toList());
