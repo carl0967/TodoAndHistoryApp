@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:src/view/screen/task_detail_screen.dart';
 
 import '../../model/task_model.dart';
 import '../../provider/task_provider.dart';
@@ -17,6 +18,14 @@ class HomeScreen extends ConsumerWidget {
         children: tasks
             .where((task) => task.isVisible)
             .map((task) => ListTile(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TaskDetailScreen(task: task),
+                      ),
+                    );
+                  },
                   key: ValueKey(task),
                   title: Text(task.name),
                   subtitle: !task.isHeader && task.getSubTitle() != null
