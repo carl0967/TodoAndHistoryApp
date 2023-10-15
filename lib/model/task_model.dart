@@ -11,6 +11,7 @@ class Task {
   TaskStatus status;
   bool isHeader = false;
   bool isVisible = true;
+  String? detail;
 
   Task(this.name,
       {this.status = TaskStatus.newTask,
@@ -18,7 +19,8 @@ class Task {
       this.elapsedSecond = 0,
       this.isVisible = true,
       this.startTime = null,
-      this.endTime = null});
+      this.endTime = null,
+      this.detail = null});
 
   String getDuration() {
     var duration = Duration(seconds: elapsedSecond);
@@ -44,15 +46,15 @@ class Task {
         'isVisible': isVisible,
         'startTime': startTime?.toIso8601String(), // DateTimeをISO8601文字列に変換
         'endTime': endTime?.toIso8601String(),
+        'detail': detail,
       };
 
-  static Task fromJson(Map<String, dynamic> json) => Task(
-        json['name'].toString(),
-        status: TaskStatus.values[json['status'] as int],
-        isHeader: json['isHeader'] as bool,
-        elapsedSecond: json['elapsedSecond'] as int,
-        isVisible: json['isVisible'] as bool,
-        startTime: json['startTime'] != null ? DateTime.parse(json['startTime'] as String) : null,
-        endTime: json['endTime'] != null ? DateTime.parse(json['endTime'] as String) : null,
-      );
+  static Task fromJson(Map<String, dynamic> json) => Task(json['name'].toString(),
+      status: TaskStatus.values[json['status'] as int],
+      isHeader: json['isHeader'] as bool,
+      elapsedSecond: json['elapsedSecond'] as int,
+      isVisible: json['isVisible'] as bool,
+      startTime: json['startTime'] != null ? DateTime.parse(json['startTime'] as String) : null,
+      endTime: json['endTime'] != null ? DateTime.parse(json['endTime'] as String) : null,
+      detail: json['detail'] as String?);
 }
