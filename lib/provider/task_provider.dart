@@ -95,6 +95,10 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     await prefs.setString('tasks', tasksJson);
   }
 
+  String toJson() {
+    return jsonEncode(state.map((task) => task.toJson()).toList());
+  }
+
   Future<void> loadTasksFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     final tasksJson = prefs.getString('tasks');
