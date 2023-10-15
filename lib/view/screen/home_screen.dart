@@ -21,7 +21,9 @@ class HomeScreen extends ConsumerWidget {
             .map((task) => ListTile(
                   key: ValueKey(task),
                   title: Text(task.name),
-                  subtitle: !task.isHeader ? Text(task.getSubTitle()) : null,
+                  subtitle: !task.isHeader && task.getSubTitle() != null
+                      ? Text(task.getSubTitle()!)
+                      : null,
                   tileColor: task.isHeader ? Colors.grey[200] : null,
                   enabled: task.isHeader ? false : true,
                   trailing: !task.isHeader

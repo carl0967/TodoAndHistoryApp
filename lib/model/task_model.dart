@@ -24,10 +24,10 @@ class Task {
     return "${hours}h";
   }
 
-  String getSubTitle() {
+  String? getSubTitle() {
     var text = startTime != null ? "開始:" + DateFormat('HH:mm').format(startTime!) : "";
     text = status == TaskStatus.completed ? "経過時刻:" + getDuration() : text;
-    return text;
+    return text == "" ? null : text;
   }
 
   Map<String, dynamic> toJson() => {
