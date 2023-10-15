@@ -110,6 +110,10 @@ class HomeScreen extends ConsumerWidget {
               labelText: "タスク名",
               hintText: "タスク名を入力してください",
             ),
+            onSubmitted: (text) {
+              print(taskController.text);
+              Navigator.of(context).pop(taskController.text.trim());
+            },
           ),
           actions: <Widget>[
             TextButton(
