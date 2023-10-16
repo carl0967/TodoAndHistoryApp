@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../model/task_model.dart';
 import '../../provider/task_provider.dart';
@@ -11,8 +12,10 @@ class TaskDetailScreen extends ConsumerWidget {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _elapsedMinuteController =
       TextEditingController(); // Change to minute
+  final TextEditingController _startTimeController = TextEditingController();
+  final TextEditingController _endTimeController = TextEditingController();
 
-  TaskDetailScreen({required this.task});
+  TaskDetailScreen({required this.task}) {}
 
   Future<bool> _saveAndPop(BuildContext context, WidgetRef ref) async {
     _save(context, ref);
@@ -27,6 +30,13 @@ class TaskDetailScreen extends ConsumerWidget {
     _nameController.text = task.name;
     _elapsedMinuteController.text =
         (task.elapsedSecond / 60).round().toString(); // Convert to minutes
+
+    if (task.startTime != null) {
+      _startTimeController.text = DateFormat('y/MM/dd HH:mm').format(task.startTime!);
+    }
+    if (task.endTime != null) {
+      _endTimeController.text = DateFormat('y/MM/dd HH:mm').format(task.endTime!);
+    }
 
     return WillPopScope(
       onWillPop: () => _saveAndPop(context, ref),
@@ -70,6 +80,24 @@ class TaskDetailScreen extends ConsumerWidget {
                           keyboardType: TextInputType.number,
                         ),
                       ),
+                      SizedBox(
+                        width: 150,
+                        child: TextField(
+                          controller: _startTimeController,
+                          decoration: InputDecoration(
+                            labelText: "開始時間",
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 150,
+                        child: TextField(
+                          controller: _endTimeController,
+                          decoration: InputDecoration(
+                            labelText: "終了時間",
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(height: 16.0),
@@ -103,6 +131,18 @@ class TaskDetailScreen extends ConsumerWidget {
     task.detail = content;
     task.name = name;
     task.elapsedSecond = elapsedSeconds;
+    try {
+      task.startTime = DateFormat('y/MM/dd HH:mm').parse(_startTimeController.text);
+    } catch (e) {
+      print("Invalid start time format");
+    }
+
+    try {
+      task.endTime = DateFormat('y/MM/dd HH:mm').parse(_endTimeController.text);
+    } catch (e) {
+      print("Invalid end time format");
+    }
+
     ref.read(taskListProvider.notifier).changeTask();
     ref.read(taskListProvider.notifier).saveTasksToPrefs();
 
