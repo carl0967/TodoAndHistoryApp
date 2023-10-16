@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 enum TaskStatus { newTask, inProgress, paused, completed }
 
 class Task {
-  final String name;
+  String name;
   DateTime? startTime;
   DateTime? endTime;
   int elapsedSecond = 0;

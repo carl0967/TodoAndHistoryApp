@@ -84,9 +84,8 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     saveTasksToPrefs();
   }
 
-  void changeDetail(Task task, String detail) {
-    task.detail = detail;
-    saveTasksToPrefs();
+  void changeTask() {
+    state = state.toList();
   }
 
   Future<void> saveTasksToPrefs() async {

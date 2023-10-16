@@ -7,9 +7,12 @@ import '../../provider/task_provider.dart';
 
 class TaskDetailScreen extends ConsumerWidget {
   final Task task;
+  final TextEditingController _detailController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _elapsedMinuteController =
+      TextEditingController(); // Change to minute
 
   TaskDetailScreen({required this.task});
-  final TextEditingController _controller = TextEditingController();
 
   Future<bool> _saveAndPop(BuildContext context, WidgetRef ref) async {
     _save(context, ref);
@@ -19,8 +22,12 @@ class TaskDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (task.detail != null) {
-      _controller.text = task.detail!;
+      _detailController.text = task.detail!;
     }
+    _nameController.text = task.name;
+    _elapsedMinuteController.text =
+        (task.elapsedSecond / 60).round().toString(); // Convert to minutes
+
     return WillPopScope(
       onWillPop: () => _saveAndPop(context, ref),
       child: Scaffold(
@@ -42,18 +49,39 @@ class TaskDetailScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text('タスク名: ${task.name}'),
-                  SizedBox(height: 16.0),
-                  Text('ステータス: ${task.status}'),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: TextField(
+                          controller: _nameController,
+                          decoration: InputDecoration(
+                            labelText: "タスク名",
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 16.0),
+                      Container(
+                        width: 100, // Adjust width as needed
+                        child: TextField(
+                          controller: _elapsedMinuteController,
+                          decoration: InputDecoration(
+                            labelText: "経過分数",
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    ],
+                  ),
                   SizedBox(height: 16.0),
                   Expanded(
                     child: TextField(
                       minLines: 30,
-                      controller: _controller,
+                      controller: _detailController,
                       maxLines: null,
                       keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
+                        labelText: "タスク詳細",
                       ),
                     ),
                   ),
@@ -67,12 +95,18 @@ class TaskDetailScreen extends ConsumerWidget {
   }
 
   void _save(BuildContext context, WidgetRef ref) {
-    // ここで保存処理を行います
-    final content = _controller.text;
-    ref.read(taskListProvider.notifier).changeDetail(task, content);
+    final content = _detailController.text;
+    final name = _nameController.text;
+    final elapsedMinutes = int.tryParse(_elapsedMinuteController.text);
+    final elapsedSeconds = (elapsedMinutes ?? 0) * 60; // Convert minutes back to seconds
+
+    task.detail = content;
+    task.name = name;
+    task.elapsedSecond = elapsedSeconds;
+    ref.read(taskListProvider.notifier).changeTask();
+    ref.read(taskListProvider.notifier).saveTasksToPrefs();
 
     final snackBar = SnackBar(content: Text('保存しました!'));
-
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }
