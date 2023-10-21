@@ -107,9 +107,16 @@ class TaskNotifier extends StateNotifier<List<Task>> {
       final List<dynamic> tasksList = jsonDecode(tasksJson) as List;
       state = tasksList.map((taskMap) {
         Task task = Task.fromJson(taskMap as Map<String, dynamic>);
-        // endTimeが今日より前の場合は、task.visibleをfalseに設定
-        if (task.endTime != null && task.endTime!.isBefore(DateTime.now())) {
-          task.isVisible = false;
+        // endTimeの日付部分が今日より前の場合は、task.visibleをfalseに設定
+        if (task.endTime != null) {
+          DateTime currentDateWithoutTime =
+              DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+          DateTime endTimeWithoutTime =
+              DateTime(task.endTime!.year, task.endTime!.month, task.endTime!.day);
+
+          if (endTimeWithoutTime.isBefore(currentDateWithoutTime)) {
+            task.isVisible = false;
+          }
         }
         return task;
       }).toList();
