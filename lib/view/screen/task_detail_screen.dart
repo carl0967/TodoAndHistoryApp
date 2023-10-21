@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:src/view/screen/status_change_edit_screen.dart';
 
 import '../../model/task.dart';
 import '../../provider/task_provider.dart';
@@ -112,6 +113,14 @@ class TaskDetailScreen extends ConsumerWidget {
                               change.previousStatus.toString().split('.').last +
                               " => " +
                               change.newStatus.toString().split('.').last),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => StatusChangeEditScreen(statusChange: change),
+                              ),
+                            );
+                          },
                         );
                       },
                     ),
