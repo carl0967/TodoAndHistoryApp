@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../model/task_model.dart';
+import '../model/task.dart';
 
 class StorageService {
   static Future<void> saveTasks(List<Task> tasks) async {

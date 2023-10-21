@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:src/model/status_change.dart';
 
 enum TaskStatus { newTask, inProgress, paused, completed }
 
@@ -12,6 +13,7 @@ class Task {
   bool isHeader = false;
   bool isVisible = true;
   String? detail;
+  List<StatusChange> statusHistory = [];
 
   Task(this.name,
       {this.status = TaskStatus.newTask,
@@ -47,14 +49,25 @@ class Task {
         'startTime': startTime?.toIso8601String(), // DateTimeをISO8601文字列に変換
         'endTime': endTime?.toIso8601String(),
         'detail': detail,
+        'statusHistory': statusHistory.map((e) => e.toJson()).toList(),
       };
 
-  static Task fromJson(Map<String, dynamic> json) => Task(json['name'].toString(),
-      status: TaskStatus.values[json['status'] as int],
-      isHeader: json['isHeader'] as bool,
-      elapsedSecond: json['elapsedSecond'] as int,
-      isVisible: json['isVisible'] as bool,
-      startTime: json['startTime'] != null ? DateTime.parse(json['startTime'] as String) : null,
-      endTime: json['endTime'] != null ? DateTime.parse(json['endTime'] as String) : null,
-      detail: json['detail'] as String?);
+  static Task fromJson(Map<String, dynamic> json) {
+    var task = Task(json['name'].toString(),
+        status: TaskStatus.values[json['status'] as int],
+        isHeader: json['isHeader'] as bool,
+        elapsedSecond: json['elapsedSecond'] as int,
+        isVisible: json['isVisible'] as bool,
+        startTime: json['startTime'] != null ? DateTime.parse(json['startTime'] as String) : null,
+        endTime: json['endTime'] != null ? DateTime.parse(json['endTime'] as String) : null,
+        detail: json['detail'] as String?);
+
+    if (json['statusHistory'] != null) {
+      task.statusHistory = (json['statusHistory'] as List)
+          .map((e) => StatusChange.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+
+    return task;
+  }
 }

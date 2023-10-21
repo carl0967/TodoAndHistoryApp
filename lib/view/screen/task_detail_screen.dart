@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../model/task_model.dart';
+import '../../model/task.dart';
 import '../../provider/task_provider.dart';
 
 class TaskDetailScreen extends ConsumerWidget {
@@ -99,6 +99,22 @@ class TaskDetailScreen extends ConsumerWidget {
                         ),
                       ),
                     ],
+                  ),
+                  SizedBox(
+                    height: 50,
+                    child: ListView.builder(
+                      itemCount: task.statusHistory.length,
+                      itemBuilder: (context, index) {
+                        final change = task.statusHistory[index];
+                        return ListTile(
+                          title: Text(DateFormat('y/MM/dd HH:mm').format(change.changeTime) +
+                              " " +
+                              change.previousStatus.toString().split('.').last +
+                              " => " +
+                              change.newStatus.toString().split('.').last),
+                        );
+                      },
+                    ),
                   ),
                   SizedBox(height: 16.0),
                   Expanded(

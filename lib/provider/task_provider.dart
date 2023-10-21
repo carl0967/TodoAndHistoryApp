@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../model/task_model.dart';
+import '../model/status_change.dart';
+import '../model/task.dart';
 
 final initialTasks = [
   Task("新規", status: TaskStatus.newTask, isHeader: true),
@@ -68,6 +69,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
       task.elapsedSecond += duration.inSeconds;
     }
 
+    task.statusHistory.insert(0, StatusChange(DateTime.now(), task.status, newStatus));
     task.status = newStatus;
   }
 
