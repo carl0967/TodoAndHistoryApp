@@ -1,29 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:src/model/status_change.dart';
 
-class StatusChangeEditScreen extends StatefulWidget {
+import '../../provider/task_provider.dart';
+
+class StatusChangeEditScreen extends ConsumerWidget {
   final StatusChange statusChange;
-
-  StatusChangeEditScreen({required this.statusChange});
-
-  @override
-  _StatusChangeEditScreenState createState() => _StatusChangeEditScreenState();
-}
-
-class _StatusChangeEditScreenState extends State<StatusChangeEditScreen> {
-  late DateTime changeTime;
   final TextEditingController _changeTimeController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    changeTime = widget.statusChange.changeTime;
-    _changeTimeController.text = DateFormat('y/MM/dd HH:mm').format(changeTime);
-  }
+  StatusChangeEditScreen(this.statusChange);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    _changeTimeController.text = DateFormat('y/MM/dd HH:mm').format(statusChange.changeTime);
+
     return Scaffold(
       appBar: AppBar(
         title: Text("状態遷移の編集"),
@@ -31,7 +22,7 @@ class _StatusChangeEditScreenState extends State<StatusChangeEditScreen> {
           IconButton(
             icon: Icon(Icons.save),
             onPressed: () {
-              _save(context);
+              _save(ref);
               Navigator.pop(context);
             },
           ),
@@ -56,10 +47,11 @@ class _StatusChangeEditScreenState extends State<StatusChangeEditScreen> {
     );
   }
 
-  void _save(BuildContext context) {
+  void _save(WidgetRef ref) {
     final content = _changeTimeController.text;
     try {
-      widget.statusChange.changeTime = DateFormat('y/MM/dd HH:mm').parse(content);
+      statusChange.changeTime = DateFormat('y/MM/dd HH:mm').parse(content);
+      ref.read(taskListProvider.notifier).changeTask();
     } catch (e) {
       print("Invalid start time format");
     }

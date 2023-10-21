@@ -117,7 +117,7 @@ class TaskDetailScreen extends ConsumerWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => StatusChangeEditScreen(statusChange: change),
+                                builder: (context) => StatusChangeEditScreen(change),
                               ),
                             );
                           },
