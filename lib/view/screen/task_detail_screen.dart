@@ -105,7 +105,7 @@ class TaskDetailScreen extends ConsumerWidget {
                     child: ListView.builder(
                       itemCount: task.statusHistory.length,
                       itemBuilder: (context, index) {
-                        final change = task.statusHistory[index];
+                        final change = task.statusHistory[task.statusHistory.length - 1 - index];
                         return ListTile(
                           title: Text(DateFormat('y/MM/dd HH:mm').format(change.changeTime) +
                               " " +

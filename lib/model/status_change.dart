@@ -7,6 +7,13 @@ class StatusChange {
 
   StatusChange(this.changeTime, this.previousStatus, this.newStatus);
 
+  DateTime? getNextChangeTime(List<StatusChange> history, int currentIndex) {
+    if (currentIndex + 1 < history.length) {
+      return history[currentIndex + 1].changeTime;
+    }
+    return null;
+  }
+
   Map<String, dynamic> toJson() => {
         'changeTime': changeTime.toIso8601String(),
         'previousStatus': previousStatus.index,

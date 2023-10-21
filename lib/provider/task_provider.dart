@@ -69,7 +69,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
       task.elapsedSecond += duration.inSeconds;
     }
 
-    task.statusHistory.insert(0, StatusChange(DateTime.now(), task.status, newStatus));
+    task.statusHistory.add(StatusChange(DateTime.now(), task.status, newStatus));
     task.status = newStatus;
   }
 

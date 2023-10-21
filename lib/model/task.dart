@@ -34,9 +34,44 @@ class Task {
     return "${hours}h";
   }
 
+  String getTodayDurationText() {
+    var duration = getTodayDuration();
+    // 分を0.25時間の単位（つまり15分）で四捨五入
+    int roundedMinutes = (duration.inMinutes / 15).ceil() * 15;
+
+    // 丸められた結果を時間単位で取得
+    double hours = roundedMinutes / 60.0;
+    return "${hours}h";
+  }
+
+  Duration getTodayDuration() {
+    Duration totalDuration = Duration.zero;
+    DateTime now = DateTime.now();
+    DateTime todayStart = DateTime(now.year, now.month, now.day);
+
+    print(statusHistory.length);
+    for (int i = 0; i < statusHistory.length; i++) {
+      StatusChange change = statusHistory[i];
+      if (change.changeTime.isAfter(todayStart) && change.newStatus == TaskStatus.inProgress) {
+        DateTime? nextChangeTime = change.getNextChangeTime(statusHistory, i);
+        if (nextChangeTime != null) {
+          totalDuration += nextChangeTime.difference(change.changeTime);
+          print("$totalDuration s");
+        } else {
+          // 最後の状態遷移の場合、現在の時間を使用
+          totalDuration += now.difference(change.changeTime);
+        }
+      }
+    }
+
+    return totalDuration;
+  }
+
   String? getSubTitle() {
     var text = startTime != null ? "開始:" + DateFormat('HH:mm').format(startTime!) : "";
-    text = status == TaskStatus.completed ? "実績:" + getDuration() : text;
+    text = status == TaskStatus.completed || status == TaskStatus.paused
+        ? "実績:" + getTodayDurationText()
+        : text;
     return text == "" ? null : text;
   }
 
