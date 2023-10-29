@@ -32,9 +32,17 @@ class AllTaskScreen extends ConsumerWidget {
                             children: [
                               IconButton(
                                   onPressed: () {
-                                    ref.read(taskListProvider.notifier).changeVisible(task, false);
+                                    if (task.isVisible) {
+                                      ref
+                                          .read(taskListProvider.notifier)
+                                          .changeVisible(task, false);
+                                    } else {
+                                      ref.read(taskListProvider.notifier).changeVisible(task, true);
+                                    }
                                   },
-                                  icon: const Icon(Icons.visibility_off)),
+                                  icon: task.isVisible
+                                      ? const Icon(Icons.visibility_off)
+                                      : const Icon(Icons.visibility)),
                               IconButton(
                                 icon: const Icon(Icons.delete),
                                 onPressed: () async {
