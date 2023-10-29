@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,6 +23,28 @@ final taskListProvider = StateNotifierProvider<TaskNotifier, List<Task>>((ref) {
 
 class TaskNotifier extends StateNotifier<List<Task>> {
   TaskNotifier() : super([]);
+
+  // ファイルを選択して読み込むメソッド
+  Future<void> importJson() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json', 'txt'],
+    );
+
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      String content = await file.readAsString();
+      updateTasksFromJson(content);
+    } else {}
+  }
+
+  void updateTasksFromJson(String jsonData) {
+    final List<dynamic> tasksList = jsonDecode(jsonData) as List;
+    state = tasksList.map((taskMap) {
+      return Task.fromJson(taskMap as Map<String, dynamic>);
+    }).toList();
+  }
+
   void addTask(Task task) {
     //新規の位置に追加
     state = [...state]..insert(1, task);

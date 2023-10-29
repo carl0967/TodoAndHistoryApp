@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:src/view/screen/all_task_screen.dart';
 import 'package:src/view/screen/history_screen.dart';
 import 'package:src/view/screen/home_screen.dart';
 
-class TabScreen extends StatelessWidget {
+import '../../provider/task_provider.dart';
+
+class TabScreen extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -42,17 +45,9 @@ class TabScreen extends StatelessWidget {
                 ),
               ),
               ListTile(
-                title: Text('Item 1'),
+                title: Text('Import'),
                 onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
-              ),
-              ListTile(
-                title: Text('Item 2'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
+                  ref.read(taskListProvider.notifier).importJson();
                 },
               ),
             ],
