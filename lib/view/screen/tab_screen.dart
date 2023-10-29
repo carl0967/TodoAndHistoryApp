@@ -9,16 +9,53 @@ class TabScreen extends StatelessWidget {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(kToolbarHeight + 18), //AppBarのtitleを無理やり非表示にする
-          child: AppBar(
-            bottom: TabBar(
-              tabs: [
-                Tab(icon: Icon(Icons.home), text: "Home"),
-                Tab(icon: Icon(Icons.history), text: "History"),
-                Tab(icon: Icon(Icons.align_horizontal_left_outlined), text: "All"),
-              ],
+        appBar: AppBar(
+          leading: Builder(
+            builder: (context) => IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () => Scaffold.of(context).openDrawer(),
             ),
+          ),
+          title: TabBar(
+            tabs: [
+              Container(
+                  width: MediaQuery.of(context).size.width / 4,
+                  child: Tab(icon: Icon(Icons.home), text: "Home")),
+              Container(
+                  width: MediaQuery.of(context).size.width / 4,
+                  child: Tab(icon: Icon(Icons.history), text: "History")),
+              Container(
+                  width: MediaQuery.of(context).size.width / 4,
+                  child: Tab(icon: Icon(Icons.align_horizontal_left_outlined), text: "All")),
+            ],
+            isScrollable: true,
+          ),
+        ),
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                child: Text('Drawer Header'),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
+              ),
+              ListTile(
+                title: Text('Item 1'),
+                onTap: () {
+                  // Update the state of the app.
+                  // ...
+                },
+              ),
+              ListTile(
+                title: Text('Item 2'),
+                onTap: () {
+                  // Update the state of the app.
+                  // ...
+                },
+              ),
+            ],
           ),
         ),
         body: TabBarView(
