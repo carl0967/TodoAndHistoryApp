@@ -63,7 +63,9 @@ class HomeScreen extends ConsumerWidget {
         onPressed: () async {
           String? newTaskName = await _showAddTaskDialog(context);
           if (newTaskName != null && newTaskName.isNotEmpty) {
-            ref.read(taskListProvider.notifier).addTask(Task(newTaskName));
+            ref
+                .read(taskListProvider.notifier)
+                .addTask(Task(newTaskName, createTime: DateTime.now()));
           }
         },
         child: Icon(Icons.add),

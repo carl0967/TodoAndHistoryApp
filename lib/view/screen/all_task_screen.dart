@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../provider/task_provider.dart';
 
@@ -19,7 +20,10 @@ class AllTaskScreen extends ConsumerWidget {
         children: tasks
             .map((task) => ListTile(
                   key: ValueKey(task),
-                  title: Text(task.name),
+                  title: task.isHeader
+                      ? Text(task.name)
+                      : Text(
+                          "${DateFormat('MM/dd').format(task.getLastUpdateTime())} ${task.name}"),
                   subtitle: !task.isHeader && task.getSubTitle() != null
                       ? Text(task.getSubTitle()!)
                       : null,

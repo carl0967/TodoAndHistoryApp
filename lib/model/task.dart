@@ -5,6 +5,7 @@ enum TaskStatus { newTask, inProgress, paused, completed }
 
 class Task {
   String name;
+  DateTime createTime;
   DateTime? startTime;
   DateTime? endTime;
   int elapsedSecond = 0;
@@ -22,7 +23,18 @@ class Task {
       this.isVisible = true,
       this.startTime = null,
       this.endTime = null,
-      this.detail = null});
+      this.detail = null,
+      required this.createTime});
+
+  DateTime getLastUpdateTime() {
+    if (statusHistory.isNotEmpty) {
+      // statusHistoryの最新の時刻を返す
+      return statusHistory.last.changeTime;
+    } else {
+      // statusHistoryが空の場合は、createTimeを返す
+      return createTime;
+    }
+  }
 
   String getDuration() {
     var duration = Duration(seconds: elapsedSecond);
@@ -85,17 +97,23 @@ class Task {
         'endTime': endTime?.toIso8601String(),
         'detail': detail,
         'statusHistory': statusHistory.map((e) => e.toJson()).toList(),
+        'createTime': createTime.toIso8601String(),
       };
 
   static Task fromJson(Map<String, dynamic> json) {
-    var task = Task(json['name'].toString(),
-        status: TaskStatus.values[json['status'] as int],
-        isHeader: json['isHeader'] as bool,
-        elapsedSecond: json['elapsedSecond'] as int,
-        isVisible: json['isVisible'] as bool,
-        startTime: json['startTime'] != null ? DateTime.parse(json['startTime'] as String) : null,
-        endTime: json['endTime'] != null ? DateTime.parse(json['endTime'] as String) : null,
-        detail: json['detail'] as String?);
+    var task = Task(
+      json['name'].toString(),
+      status: TaskStatus.values[json['status'] as int],
+      isHeader: json['isHeader'] as bool,
+      elapsedSecond: json['elapsedSecond'] as int,
+      isVisible: json['isVisible'] as bool,
+      startTime: json['startTime'] != null ? DateTime.parse(json['startTime'] as String) : null,
+      endTime: json['endTime'] != null ? DateTime.parse(json['endTime'] as String) : null,
+      detail: json['detail'] as String?,
+      createTime: json['createTime'] != null
+          ? DateTime.parse(json['createTime'] as String)
+          : DateTime.now(),
+    );
 
     if (json['statusHistory'] != null) {
       task.statusHistory = (json['statusHistory'] as List)

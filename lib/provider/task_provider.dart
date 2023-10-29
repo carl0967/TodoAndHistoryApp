@@ -12,10 +12,10 @@ import '../model/task.dart';
 final log = Logger('TaskNotifier');
 
 final initialTasks = [
-  Task("新規", status: TaskStatus.newTask, isHeader: true),
-  Task("進行中", status: TaskStatus.inProgress, isHeader: true),
-  Task("中断", status: TaskStatus.paused, isHeader: true),
-  Task("完了", status: TaskStatus.completed, isHeader: true),
+  Task("新規", status: TaskStatus.newTask, isHeader: true, createTime: DateTime.now()),
+  Task("進行中", status: TaskStatus.inProgress, isHeader: true, createTime: DateTime.now()),
+  Task("中断", status: TaskStatus.paused, isHeader: true, createTime: DateTime.now()),
+  Task("完了", status: TaskStatus.completed, isHeader: true, createTime: DateTime.now()),
 ];
 
 final taskListProvider = StateNotifierProvider<TaskNotifier, List<Task>>((ref) {
