@@ -3,10 +3,13 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/status_change.dart';
 import '../model/task.dart';
+
+final log = Logger('TaskNotifier');
 
 final initialTasks = [
   Task("新規", status: TaskStatus.newTask, isHeader: true),
@@ -55,12 +58,19 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     if (newIndex > oldIndex) {
       newIndex -= 1;
     }
+
+    log.info("oldIndex:$oldIndex,newIndex:$newIndex");
+
     final item = state.removeAt(oldIndex);
     state = [...state]..insert(newIndex, item);
 
+    for (var i = 0; i < state.length; i++) {
+      log.info("$i: ${state[i].name}");
+    }
+
     var newStatus = TaskStatus.newTask;
     for (var i = newIndex; i > 0; i--) {
-      print(state[i].name);
+      log.info("$i: ${state[i].name}");
       if (state[i].isHeader) {
         newStatus = state[i].status;
         break;
@@ -68,7 +78,8 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     }
     //ステータスが変更になった場合
     var oldStatus = item.status;
-    print("$oldStatus $newStatus");
+    log.info("status changed. $oldStatus -> $newStatus");
+
     if (oldStatus != newStatus) {
       _changeStatus(item, newStatus);
     }
