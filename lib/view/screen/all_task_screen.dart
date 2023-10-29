@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:src/view/screen/task_detail_screen.dart';
 
 import '../../provider/task_provider.dart';
 
@@ -19,6 +20,14 @@ class AllTaskScreen extends ConsumerWidget {
         },
         children: tasks
             .map((task) => ListTile(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TaskDetailScreen(task: task),
+                      ),
+                    );
+                  },
                   key: ValueKey(task),
                   title: task.isHeader
                       ? Text(task.name)
