@@ -54,6 +54,12 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     saveTasksToPrefs();
   }
 
+  void addTaskWithComplete(Task task) {
+    //完了の位置に追加
+    state = [...state]..add(task);
+    saveTasksToPrefs();
+  }
+
   void reorder(int oldIndex, int newIndex) {
     if (newIndex > oldIndex) {
       newIndex -= 1;
@@ -123,6 +129,11 @@ class TaskNotifier extends StateNotifier<List<Task>> {
 
   void changeTask() {
     state = state.toList();
+  }
+
+  void updateAndSave() {
+    state = state.toList();
+    saveTasksToPrefs();
   }
 
   Future<void> saveTasksToPrefs() async {

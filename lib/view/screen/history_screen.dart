@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:src/model/status_change.dart';
 
 import '../../model/task.dart';
 import '../../provider/task_provider.dart';
@@ -28,13 +29,19 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   void _addNewTask() {
     setState(() {
-      final newTask = Task("", createTime: DateTime.now());
+      var newTask = Task("", createTime: DateTime.now());
+      newTask.statusHistory
+          .add(StatusChange(DateTime.now(), TaskStatus.newTask, TaskStatus.completed));
+      // TODO: statusHistoryとstatusがかぶってるので直す
+      newTask.status = TaskStatus.completed;
+      newTask.endTime = DateTime.now();
+
       todayTasks.add(newTask);
       nameControllers.add(TextEditingController(text: newTask.name));
       durationControllers.add(TextEditingController(text: newTask.getTodayDurationText()));
 
       final taskNotifier = ref.read(taskListProvider.notifier);
-      taskNotifier.addTask(newTask);
+      taskNotifier.addTaskWithComplete(newTask);
     });
   }
 

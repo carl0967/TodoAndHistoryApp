@@ -99,7 +99,7 @@ class Task {
   void updateDailyElapsedSeconds(DateTime date, String durationText) {
     int seconds = convertDurationTextToSeconds(durationText);
     String dateKey = DateFormat('yyyy-MM-dd').format(date);
-    dailyElapsedSeconds.update(dateKey, (existingSeconds) => seconds);
+    dailyElapsedSeconds.update(dateKey, (existingSeconds) => seconds, ifAbsent: () => seconds);
   }
 
   int convertDurationTextToSeconds(String durationText) {
