@@ -65,7 +65,7 @@ class Task {
     if (todaySeconds > 0) {
       // 登録されている時間を時間単位で取得して返す
       double hours = todaySeconds / 3600.0;
-      return "${hours.toStringAsFixed(1)}h";
+      return "${hours.toStringAsFixed(2)}h";
     } else {
       // 元の処理を行う
       var duration = getTodayDuration(time);
