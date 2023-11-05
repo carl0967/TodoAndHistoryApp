@@ -15,6 +15,7 @@ class Task {
   bool isVisible = true;
   String? detail;
   List<StatusChange> statusHistory = [];
+  Map<String, int> dailyElapsedSeconds = {};
 
   Task(this.name,
       {this.status = TaskStatus.newTask,
@@ -46,14 +47,21 @@ class Task {
     return "${hours}h";
   }
 
+  // 今日の作業時間をテキスト形式で取得するメソッド
   String getTodayDurationText() {
-    var duration = getTodayDuration();
-    // 分を0.25時間の単位（つまり15分）で四捨五入
-    int roundedMinutes = (duration.inMinutes / 15).ceil() * 15;
+    int todaySeconds = getDailyElapsedSeconds(DateTime.now());
 
-    // 丸められた結果を時間単位で取得
-    double hours = roundedMinutes / 60.0;
-    return "${hours}h";
+    if (todaySeconds > 0) {
+      // 登録されている時間を時間単位で取得して返す
+      double hours = todaySeconds / 3600.0;
+      return "${hours.toStringAsFixed(1)}h";
+    } else {
+      // 元の処理を行う
+      var duration = Duration(seconds: elapsedSecond);
+      int roundedMinutes = (duration.inMinutes / 15).ceil() * 15;
+      double hours = roundedMinutes / 60.0;
+      return "${hours.toStringAsFixed(1)}h";
+    }
   }
 
   Duration getTodayDuration() {
@@ -87,6 +95,33 @@ class Task {
     return text == "" ? null : text;
   }
 
+  // 日ごとの作業時間を更新するメソッド
+  void updateDailyElapsedSeconds(DateTime date, String durationText) {
+    int seconds = convertDurationTextToSeconds(durationText);
+    String dateKey = DateFormat('yyyy-MM-dd').format(date);
+    dailyElapsedSeconds.update(dateKey, (existingSeconds) => existingSeconds + seconds,
+        ifAbsent: () => seconds);
+  }
+
+  int convertDurationTextToSeconds(String durationText) {
+    // "h" を取り除いて数値部分のみを取得
+    String numberPart = durationText.replaceAll('h', '');
+
+    // 数値部分を double に変換
+    double hours = double.tryParse(numberPart) ?? 0.0;
+
+    // 時間を秒に変換
+    int seconds = (hours * 3600).toInt();
+
+    return seconds;
+  }
+
+  // 日ごとの作業時間を取得するメソッド
+  int getDailyElapsedSeconds(DateTime date) {
+    String dateKey = DateFormat('yyyy-MM-dd').format(date);
+    return dailyElapsedSeconds[dateKey] ?? 0;
+  }
+
   Map<String, dynamic> toJson() => {
         'name': name,
         'status': status.index,
@@ -98,6 +133,7 @@ class Task {
         'detail': detail,
         'statusHistory': statusHistory.map((e) => e.toJson()).toList(),
         'createTime': createTime.toIso8601String(),
+        'dailyElapsedSeconds': dailyElapsedSeconds,
       };
 
   static Task fromJson(Map<String, dynamic> json) {
@@ -119,6 +155,11 @@ class Task {
       task.statusHistory = (json['statusHistory'] as List)
           .map((e) => StatusChange.fromJson(e as Map<String, dynamic>))
           .toList();
+    }
+
+    if (json['dailyElapsedSeconds'] != null) {
+      task.dailyElapsedSeconds =
+          Map<String, int>.from(json['dailyElapsedSeconds'] as Map<String, int>);
     }
 
     return task;
