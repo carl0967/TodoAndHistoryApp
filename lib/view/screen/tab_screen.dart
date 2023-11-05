@@ -7,6 +7,40 @@ import 'package:src/view/screen/home_screen.dart';
 import '../../provider/task_provider.dart';
 
 class TabScreen extends ConsumerWidget {
+  // データクリアの確認ダイアログを表示するメソッド
+  Future<void> _showClearConfirmationDialog(BuildContext context, WidgetRef ref) async {
+    // showDialog 関数を使用してダイアログを表示
+    final bool confirmed = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Confirm'),
+              content: Text('Are you sure you want to clear all data?'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop(false); // ダイアログを閉じて false を返す
+                  },
+                ),
+                TextButton(
+                  child: Text('Clear'),
+                  onPressed: () {
+                    Navigator.of(context).pop(true); // ダイアログを閉じて true を返す
+                  },
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // showDialog が null を返した場合は false とする
+
+    // 確認が取れた場合のみクリア処理を実行
+    if (confirmed) {
+      ref.read(taskListProvider.notifier).clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
@@ -53,7 +87,7 @@ class TabScreen extends ConsumerWidget {
               ListTile(
                 title: Text('Clear'),
                 onTap: () {
-                  ref.read(taskListProvider.notifier).clear();
+                  _showClearConfirmationDialog(context, ref);
                 },
               ),
             ],
