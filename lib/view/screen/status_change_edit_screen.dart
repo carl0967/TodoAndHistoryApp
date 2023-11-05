@@ -11,37 +11,45 @@ class StatusChangeEditScreen extends ConsumerWidget {
 
   StatusChangeEditScreen(this.statusChange);
 
+  Future<bool> _saveAndPop(BuildContext context, WidgetRef ref) async {
+    _save(ref);
+    return true;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     _changeTimeController.text = DateFormat('y/MM/dd HH:mm').format(statusChange.changeTime);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("状態遷移の編集"),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.save),
-            onPressed: () {
-              _save(ref);
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: <Widget>[
-            SizedBox(
-              width: 150,
-              child: TextField(
-                controller: _changeTimeController,
-                decoration: InputDecoration(
-                  labelText: "変更した時刻",
-                ),
-              ),
+    return WillPopScope(
+      onWillPop: () => _saveAndPop(context, ref),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("状態遷移の編集"),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.save),
+              onPressed: () {
+                _save(ref);
+                Navigator.pop(context);
+              },
             ),
           ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: <Widget>[
+              SizedBox(
+                width: 150,
+                child: TextField(
+                  controller: _changeTimeController,
+                  decoration: InputDecoration(
+                    labelText: "変更した時刻",
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -11,6 +11,7 @@ class HistoryScreen extends ConsumerStatefulWidget {
 }
 
 class _HistoryScreenState extends ConsumerState<HistoryScreen> {
+  DateTime selectedDate = DateTime.now();
   List<Task> todayTasks = [];
   List<TextEditingController> nameControllers = [];
   List<TextEditingController> durationControllers = [];
@@ -18,13 +19,23 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   @override
   void initState() {
     super.initState();
+    _init();
+  }
+
+  void _init() {
     final tasks = ref.read(taskListProvider);
     todayTasks = tasks
-        .where((task) => task.endTime != null && task.endTime!.day == DateTime.now().day)
+        .where((task) =>
+            task.getEndTime() != null &&
+            task.getEndTime()!.day == selectedDate.day &&
+            task.getEndTime()!.month == selectedDate.month &&
+            task.getEndTime()!.year == selectedDate.year)
         .toList();
+
     nameControllers = todayTasks.map((task) => TextEditingController(text: task.name)).toList();
-    durationControllers =
-        todayTasks.map((task) => TextEditingController(text: task.getTodayDurationText())).toList();
+    durationControllers = todayTasks
+        .map((task) => TextEditingController(text: task.getTodayDurationText(selectedDate)))
+        .toList();
   }
 
   void _addNewTask() {
@@ -34,11 +45,11 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           .add(StatusChange(DateTime.now(), TaskStatus.newTask, TaskStatus.completed));
       // TODO: statusHistoryとstatusがかぶってるので直す
       newTask.status = TaskStatus.completed;
-      newTask.endTime = DateTime.now();
 
       todayTasks.add(newTask);
       nameControllers.add(TextEditingController(text: newTask.name));
-      durationControllers.add(TextEditingController(text: newTask.getTodayDurationText()));
+      durationControllers
+          .add(TextEditingController(text: newTask.getTodayDurationText(selectedDate)));
 
       final taskNotifier = ref.read(taskListProvider.notifier);
       taskNotifier.addTaskWithComplete(newTask);
@@ -55,9 +66,33 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('変更を保存しました')));
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+        _init();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(selectedDate.toString()),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.calendar_today),
+            onPressed: () => _selectDate(context),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

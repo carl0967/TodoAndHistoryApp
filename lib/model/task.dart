@@ -7,7 +7,6 @@ class Task {
   String name;
   DateTime createTime;
   DateTime? startTime;
-  DateTime? endTime;
   int elapsedSecond = 0;
 
   TaskStatus status;
@@ -23,9 +22,21 @@ class Task {
       this.elapsedSecond = 0,
       this.isVisible = true,
       this.startTime = null,
-      this.endTime = null,
       this.detail = null,
       required this.createTime});
+
+  DateTime? getEndTime() {
+    //var sortedHistory = List<StatusChange>.from(statusHistory)
+    //  ..sort((a, b) => b.changeTime.compareTo(a.changeTime));
+
+    // ソートされたリストからcompletedステータスの最新の時間を探す
+    for (StatusChange change in statusHistory) {
+      if (change.newStatus == TaskStatus.completed) {
+        return change.changeTime; // 最新のcompletedステータスの時間を返す
+      }
+    }
+    return null; // completedステータスがない場合はnullを返す
+  }
 
   DateTime getLastUpdateTime() {
     if (statusHistory.isNotEmpty) {
@@ -48,8 +59,8 @@ class Task {
   }
 
   // 今日の作業時間をテキスト形式で取得するメソッド
-  String getTodayDurationText() {
-    int todaySeconds = getDailyElapsedSeconds(DateTime.now());
+  String getTodayDurationText(DateTime? time) {
+    int todaySeconds = getDailyElapsedSeconds(time ?? DateTime.now());
 
     if (todaySeconds > 0) {
       // 登録されている時間を時間単位で取得して返す
@@ -57,16 +68,16 @@ class Task {
       return "${hours.toStringAsFixed(1)}h";
     } else {
       // 元の処理を行う
-      var duration = Duration(seconds: elapsedSecond);
+      var duration = getTodayDuration(time);
       int roundedMinutes = (duration.inMinutes / 15).ceil() * 15;
       double hours = roundedMinutes / 60.0;
       return "${hours.toStringAsFixed(1)}h";
     }
   }
 
-  Duration getTodayDuration() {
+  Duration getTodayDuration(DateTime? time) {
     Duration totalDuration = Duration.zero;
-    DateTime now = DateTime.now();
+    DateTime now = time ?? DateTime.now();
     DateTime todayStart = DateTime(now.year, now.month, now.day);
 
     print(statusHistory.length);
@@ -90,7 +101,7 @@ class Task {
   String? getSubTitle() {
     var text = startTime != null ? "開始:" + DateFormat('HH:mm').format(startTime!) : "";
     text = status == TaskStatus.completed || status == TaskStatus.paused
-        ? "実績:" + getTodayDurationText()
+        ? "実績:" + getTodayDurationText(DateTime.now())
         : text;
     return text == "" ? null : text;
   }
@@ -128,7 +139,6 @@ class Task {
         'elapsedSecond': elapsedSecond,
         'isVisible': isVisible,
         'startTime': startTime?.toIso8601String(), // DateTimeをISO8601文字列に変換
-        'endTime': endTime?.toIso8601String(),
         'detail': detail,
         'statusHistory': statusHistory.map((e) => e.toJson()).toList(),
         'createTime': createTime.toIso8601String(),
@@ -143,7 +153,6 @@ class Task {
       elapsedSecond: json['elapsedSecond'] as int,
       isVisible: json['isVisible'] as bool,
       startTime: json['startTime'] != null ? DateTime.parse(json['startTime'] as String) : null,
-      endTime: json['endTime'] != null ? DateTime.parse(json['endTime'] as String) : null,
       detail: json['detail'] as String?,
       createTime: json['createTime'] != null
           ? DateTime.parse(json['createTime'] as String)

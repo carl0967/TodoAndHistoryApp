@@ -35,8 +35,8 @@ class TaskDetailScreen extends ConsumerWidget {
     if (task.startTime != null) {
       _startTimeController.text = DateFormat('y/MM/dd HH:mm').format(task.startTime!);
     }
-    if (task.endTime != null) {
-      _endTimeController.text = DateFormat('y/MM/dd HH:mm').format(task.endTime!);
+    if (task.getEndTime() != null) {
+      _endTimeController.text = DateFormat('y/MM/dd HH:mm').format(task.getEndTime()!);
     }
 
     return WillPopScope(
@@ -160,12 +160,6 @@ class TaskDetailScreen extends ConsumerWidget {
       task.startTime = DateFormat('y/MM/dd HH:mm').parse(_startTimeController.text);
     } catch (e) {
       print("Invalid start time format");
-    }
-
-    try {
-      task.endTime = DateFormat('y/MM/dd HH:mm').parse(_endTimeController.text);
-    } catch (e) {
-      print("Invalid end time format");
     }
 
     ref.read(taskListProvider.notifier).changeTask();

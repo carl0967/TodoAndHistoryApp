@@ -26,7 +26,7 @@ class StatusChange {
             ? TaskStatus.values[json['previousStatus'] as int]
             : TaskStatus.newTask,
         json['newStatus'] != null
-            ? TaskStatus.values[json['previousStatus'] as int]
+            ? TaskStatus.values[json['newStatus'] as int]
             : TaskStatus.newTask,
       );
 }

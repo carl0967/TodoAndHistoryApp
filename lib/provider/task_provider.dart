@@ -97,7 +97,6 @@ class TaskNotifier extends StateNotifier<List<Task>> {
       task.startTime = DateTime.now();
     } else if (newStatus == TaskStatus.completed) {
       // →完了
-      task.endTime = DateTime.now();
       if (task.startTime != null) {
         final duration = DateTime.now().difference(task.startTime!);
         print("経過時間: ${duration.inSeconds} 秒");
@@ -154,11 +153,11 @@ class TaskNotifier extends StateNotifier<List<Task>> {
       state = tasksList.map((taskMap) {
         Task task = Task.fromJson(taskMap as Map<String, dynamic>);
         // endTimeの日付部分が今日より前の場合は、task.visibleをfalseに設定
-        if (task.endTime != null) {
+        if (task.getEndTime() != null) {
+          var endTime = task.getEndTime();
           DateTime currentDateWithoutTime =
               DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-          DateTime endTimeWithoutTime =
-              DateTime(task.endTime!.year, task.endTime!.month, task.endTime!.day);
+          DateTime endTimeWithoutTime = DateTime(endTime!.year, endTime!.month, endTime!.day);
 
           if (endTimeWithoutTime.isBefore(currentDateWithoutTime)) {
             task.isVisible = false;
