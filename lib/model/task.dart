@@ -99,8 +99,7 @@ class Task {
   void updateDailyElapsedSeconds(DateTime date, String durationText) {
     int seconds = convertDurationTextToSeconds(durationText);
     String dateKey = DateFormat('yyyy-MM-dd').format(date);
-    dailyElapsedSeconds.update(dateKey, (existingSeconds) => existingSeconds + seconds,
-        ifAbsent: () => seconds);
+    dailyElapsedSeconds.update(dateKey, (existingSeconds) => seconds);
   }
 
   int convertDurationTextToSeconds(String durationText) {
@@ -158,8 +157,17 @@ class Task {
     }
 
     if (json['dailyElapsedSeconds'] != null) {
-      task.dailyElapsedSeconds =
-          Map<String, int>.from(json['dailyElapsedSeconds'] as Map<String, int>);
+      task.dailyElapsedSeconds = (json['dailyElapsedSeconds'] as Map).map((key, value) {
+        // 値をStringにキャストしてからintに変換します。
+        // nullや他の非数値型の場合に備えて、エラーハンドリングも行います。
+        int intValue;
+        try {
+          intValue = int.parse(value.toString());
+        } catch (e) {
+          intValue = 0; // 数値に変換できない場合は0を代入
+        }
+        return MapEntry(key as String, intValue);
+      });
     }
 
     return task;

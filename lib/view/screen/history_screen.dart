@@ -1,24 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../model/task.dart';
 import '../../provider/task_provider.dart';
 
-class HistoryScreen extends ConsumerWidget {
+class HistoryScreen extends ConsumerStatefulWidget {
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var tasks = ref.watch(taskListProvider);
-    var taskNotifier = ref.read(taskListProvider.notifier);
+  _HistoryScreenState createState() => _HistoryScreenState();
+}
 
-    // 今日終了したタスクのみをフィルタリング
-    var todayTasks = tasks
+class _HistoryScreenState extends ConsumerState<HistoryScreen> {
+  List<Task> todayTasks = [];
+  List<TextEditingController> nameControllers = [];
+  List<TextEditingController> durationControllers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    final tasks = ref.read(taskListProvider);
+    todayTasks = tasks
         .where((task) => task.endTime != null && task.endTime!.day == DateTime.now().day)
         .toList();
-
-    // 各タスクの編集用コントローラーを作成
-    var nameControllers = todayTasks.map((task) => TextEditingController(text: task.name)).toList();
-    var durationControllers =
+    nameControllers = todayTasks.map((task) => TextEditingController(text: task.name)).toList();
+    durationControllers =
         todayTasks.map((task) => TextEditingController(text: task.getTodayDurationText())).toList();
+  }
 
+  void _addNewTask() {
+    setState(() {
+      final newTask = Task("", createTime: DateTime.now());
+      todayTasks.add(newTask);
+      nameControllers.add(TextEditingController(text: newTask.name));
+      durationControllers.add(TextEditingController(text: newTask.getTodayDurationText()));
+
+      final taskNotifier = ref.read(taskListProvider.notifier);
+      taskNotifier.addTask(newTask);
+    });
+  }
+
+  void _saveAllTasks() async {
+    final taskNotifier = ref.read(taskListProvider.notifier);
+    for (int i = 0; i < todayTasks.length; i++) {
+      todayTasks[i].name = nameControllers[i].text;
+      todayTasks[i].updateDailyElapsedSeconds(DateTime.now(), durationControllers[i].text);
+    }
+    await taskNotifier.saveTasksToPrefs();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('変更を保存しました')));
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -61,21 +92,23 @@ class HistoryScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                // ここで全ての変更を保存する処理を実装
-                for (var i = 0; i < todayTasks.length; i++) {
-                  var task = todayTasks[i];
-                  task.name = nameControllers[i].text;
-                  // 経過時間の更新処理をここに実装する必要がある
-                  task.updateDailyElapsedSeconds(DateTime.now(), durationControllers[i].text);
-                }
-                await taskNotifier.saveTasksToPrefs(); // 変更を保存
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('変更を保存しました')),
-                );
-              },
-              child: Text('全て保存'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: _addNewTask,
+                  child: Icon(Icons.add),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.green,
+                    shape: CircleBorder(),
+                    padding: EdgeInsets.all(20),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: _saveAllTasks,
+                  child: Text('全て保存'),
+                ),
+              ],
             ),
           ],
         ),
