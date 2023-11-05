@@ -50,6 +50,12 @@ class TabScreen extends ConsumerWidget {
                   ref.read(taskListProvider.notifier).importJson();
                 },
               ),
+              ListTile(
+                title: Text('Clear'),
+                onTap: () {
+                  ref.read(taskListProvider.notifier).clear();
+                },
+              ),
             ],
           ),
         ),

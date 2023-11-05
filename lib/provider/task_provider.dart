@@ -27,6 +27,11 @@ final taskListProvider = StateNotifierProvider<TaskNotifier, List<Task>>((ref) {
 class TaskNotifier extends StateNotifier<List<Task>> {
   TaskNotifier() : super([]);
 
+  void clear() {
+    state = state..clear();
+    saveTasksToPrefs();
+  }
+
   // ファイルを選択して読み込むメソッド
   Future<void> importJson() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(

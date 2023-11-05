@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:src/model/status_change.dart';
 
 import '../../model/task.dart';
@@ -83,20 +84,29 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final String formattedDate = DateFormat('yyyy/MM/dd').format(selectedDate);
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(selectedDate.toString()),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.calendar_today),
-            onPressed: () => _selectDate(context),
-          ),
-        ],
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  formattedDate, // フォーマットされた日付を表示
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.calendar_today),
+                  onPressed: () => _selectDate(context),
+                ),
+              ],
+            ),
             Expanded(
               child: SingleChildScrollView(
                 child: Table(
