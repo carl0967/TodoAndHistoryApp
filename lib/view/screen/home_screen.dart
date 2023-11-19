@@ -7,58 +7,84 @@ import '../../model/task.dart';
 import '../../provider/task_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
+  String dropdownValue = '未完了'; // ドロップダウンの初期値
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var tasks = ref.watch(taskListProvider);
 
     return Scaffold(
-      body: ReorderableListView(
-        onReorder: (oldIndex, newIndex) {
-          ref.read(taskListProvider.notifier).reorder(oldIndex, newIndex);
-        },
-        children: tasks
-            .where((task) => task.isVisible)
-            .map((task) => ListTile(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TaskDetailScreen(task: task),
-                      ),
-                    );
-                  },
-                  key: ValueKey(task),
-                  title: Text(task.name),
-                  subtitle: !task.isHeader && task.getSubTitle() != null
-                      ? Text(task.getSubTitle()!)
-                      : null,
-                  tileColor: task.isHeader ? Colors.grey[200] : null,
-                  enabled: task.isHeader ? false : true,
-                  trailing: !task.isHeader
-                      ? SizedBox(
-                          width: 96,
-                          child: Row(
-                            children: [
-                              IconButton(
-                                  onPressed: () {
-                                    ref.read(taskListProvider.notifier).changeVisible(task, false);
-                                  },
-                                  icon: const Icon(Icons.visibility_off)),
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () async {
-                                  bool? shouldDelete = await _showDeleteConfirmationDialog(context);
-                                  if (shouldDelete == true) {
-                                    ref.read(taskListProvider.notifier).removeTask(task);
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        )
-                      : null,
-                ))
-            .toList(),
+      body: Column(
+        children: [
+          // ドロップダウンメニュー
+          DropdownButton<String>(
+            value: dropdownValue,
+            onChanged: (String? newValue) {
+              dropdownValue = newValue ?? "";
+              bool todayOnly = dropdownValue == "今日";
+              ref.watch(taskListProvider.notifier).filter(todayOnly);
+            },
+            items: <String>['未完了', '今日'].map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),
+          Expanded(
+            child: ReorderableListView(
+              onReorder: (oldIndex, newIndex) {
+                ref.read(taskListProvider.notifier).reorder(oldIndex, newIndex);
+              },
+              children: tasks
+                  .where((task) => task.isVisible)
+                  .map((task) => ListTile(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TaskDetailScreen(task: task),
+                            ),
+                          );
+                        },
+                        key: ValueKey(task),
+                        title: Text(task.name),
+                        subtitle: !task.isHeader && task.getSubTitle() != null
+                            ? Text(task.getSubTitle()!)
+                            : null,
+                        tileColor: task.isHeader ? Colors.grey[200] : null,
+                        enabled: task.isHeader ? false : true,
+                        trailing: !task.isHeader
+                            ? SizedBox(
+                                width: 96,
+                                child: Row(
+                                  children: [
+                                    IconButton(
+                                        onPressed: () {
+                                          ref
+                                              .read(taskListProvider.notifier)
+                                              .changeVisible(task, false);
+                                        },
+                                        icon: const Icon(Icons.visibility_off)),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete),
+                                      onPressed: () async {
+                                        bool? shouldDelete =
+                                            await _showDeleteConfirmationDialog(context);
+                                        if (shouldDelete == true) {
+                                          ref.read(taskListProvider.notifier).removeTask(task);
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : null,
+                      ))
+                  .toList(),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {

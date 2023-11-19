@@ -146,6 +146,27 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     await prefs.setString('tasks', tasksJson);
   }
 
+  void filter(bool todayOnly) {
+    if (todayOnly) {
+      for (var task in state.where((element) => element.isVisible)) {
+        var startDate = task.plannedStartDate;
+        if (startDate != null && startDate.isAfter(DateTime.now())) {
+          task.isVisible = false;
+        }
+      }
+    } else {
+      for (var task in state.where((element) => !element.isVisible)) {
+        var startDate = task.plannedStartDate;
+        if (startDate != null &&
+            startDate.isAfter(DateTime.now()) &&
+            task.status != TaskStatus.completed) {
+          task.isVisible = true;
+        }
+      }
+    }
+    state = state.toList();
+  }
+
   String toJson() {
     return jsonEncode(state.map((task) => task.toJson()).toList());
   }
