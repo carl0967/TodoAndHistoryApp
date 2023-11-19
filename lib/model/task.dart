@@ -35,6 +35,13 @@ class Task {
         return change.changeTime; // 最新のcompletedステータスの時間を返す
       }
     }
+    // ソートされたリストからpausedステータスの最新の時間を探す
+    for (StatusChange change in statusHistory) {
+      if (change.newStatus == TaskStatus.paused) {
+        return change.changeTime; // 最新のcompletedステータスの時間を返す
+      }
+    }
+
     return null; // completedステータスがない場合はnullを返す
   }
 
@@ -71,8 +78,17 @@ class Task {
       var duration = getTodayDuration(time);
       int roundedMinutes = (duration.inMinutes / 15).ceil() * 15;
       double hours = roundedMinutes / 60.0;
-      return "${hours.toStringAsFixed(1)}h";
+      return "${hours.toStringAsFixed(2)}h";
     }
+  }
+
+  // 今日の作業時間をDouble形式で取得するメソッド
+  double getTodayDurationDouble(DateTime? time) {
+    String durationText = getTodayDurationText(time);
+    // "h" を取り除く
+    String numberPart = durationText.replaceAll('h', '');
+    // 文字列を double に変換
+    return double.tryParse(numberPart) ?? 0.0;
   }
 
   Duration getTodayDuration(DateTime? time) {

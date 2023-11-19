@@ -27,7 +27,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     final tasks = ref.read(taskListProvider);
     todayTasks = tasks
         .where((task) =>
-            task.getEndTime() != null &&
+            (task.getEndTime() != null) &&
             task.getEndTime()!.day == selectedDate.day &&
             task.getEndTime()!.month == selectedDate.month &&
             task.getEndTime()!.year == selectedDate.year)
@@ -85,8 +85,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     var totalDurationHours = todayTasks.fold(0.0, (sum, task) {
-      int durationSeconds = task.getDailyElapsedSeconds(selectedDate);
-      return sum + (durationSeconds / 3600.0);
+      return sum + task.getTodayDurationDouble(selectedDate);
     });
     final String formattedDate = DateFormat('yyyy/MM/dd').format(selectedDate);
 
