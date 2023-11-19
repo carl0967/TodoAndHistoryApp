@@ -84,6 +84,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var totalDurationHours = todayTasks.fold(0.0, (sum, task) {
+      int durationSeconds = task.getDailyElapsedSeconds(selectedDate);
+      return sum + (durationSeconds / 3600.0);
+    });
     final String formattedDate = DateFormat('yyyy/MM/dd').format(selectedDate);
 
     return Scaffold(
@@ -92,7 +96,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
                   formattedDate, // フォーマットされた日付を表示
@@ -105,6 +109,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                   icon: Icon(Icons.calendar_today),
                   onPressed: () => _selectDate(context),
                 ),
+                Text("合計: ${totalDurationHours.toStringAsFixed(2)} h"),
               ],
             ),
             Expanded(
