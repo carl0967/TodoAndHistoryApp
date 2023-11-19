@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:src/view/screen/task_detail_screen.dart';
 
 import '../../model/task.dart';
@@ -61,11 +62,9 @@ class HomeScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          String? newTaskName = await _showAddTaskDialog(context);
-          if (newTaskName != null && newTaskName.isNotEmpty) {
-            ref
-                .read(taskListProvider.notifier)
-                .addTask(Task(newTaskName, createTime: DateTime.now()));
+          var task = await _showAddTaskDialog(context);
+          if (task != null) {
+            ref.read(taskListProvider.notifier).addTask(task);
           }
         },
         child: Icon(Icons.add),
@@ -99,39 +98,78 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Future<String?> _showAddTaskDialog(BuildContext context) async {
+  Future<Task?> _showAddTaskDialog(BuildContext context) async {
     TextEditingController taskController = TextEditingController();
-    return showDialog<String>(
+    DateTime? selectedDate; // 選択された日付を保持する変数
+
+    return showDialog<Task>(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("新しいタスク"),
-          content: TextField(
-            controller: taskController,
-            decoration: InputDecoration(
-              labelText: "タスク名",
-              hintText: "タスク名を入力してください",
-            ),
-            onSubmitted: (text) {
-              print(taskController.text);
-              Navigator.of(context).pop(taskController.text.trim());
-            },
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text("キャンセル"),
-              onPressed: () {
-                Navigator.of(context).pop(null);
-              },
-            ),
-            TextButton(
-              child: Text("OK"),
-              onPressed: () {
-                print(taskController.text);
-                Navigator.of(context).pop(taskController.text.trim());
-              },
-            ),
-          ],
+        return StatefulBuilder(
+          // StatefulBuilderを使用
+          builder: (BuildContext context, StateSetter setState) {
+            // StateSetterを使用
+            // 日付ピッカーを表示するメソッド
+            Future<void> _selectPlannedStartDate() async {
+              final DateTime? picked = await showDatePicker(
+                context: context,
+                initialDate: selectedDate ?? DateTime.now(), // 初期選択日付
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2025),
+              );
+              if (picked != null && picked != selectedDate) {
+                setState(() {
+                  // StatefulBuilderのsetStateを使用
+                  selectedDate = picked;
+                });
+              }
+            }
+
+            return AlertDialog(
+              title: Text("新しいタスク"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min, // コンテンツのサイズを最小限に
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.calendar_today),
+                        onPressed: _selectPlannedStartDate,
+                      ),
+                      // 選択された日付を表示
+                      Text(selectedDate != null
+                          ? DateFormat('yyyy/MM/dd').format(selectedDate!)
+                          : '日付を選択'),
+                    ],
+                  ),
+                  TextField(
+                    controller: taskController,
+                    decoration: InputDecoration(
+                      labelText: "タスク名",
+                      hintText: "タスク名を入力してください",
+                    ),
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: Text("キャンセル"),
+                  onPressed: () {
+                    Navigator.of(context).pop(null);
+                  },
+                ),
+                TextButton(
+                  child: Text("OK"),
+                  onPressed: () {
+                    var newTaskName = taskController.text.trim();
+                    var task = Task(newTaskName,
+                        createTime: DateTime.now(), plannedStartDate: selectedDate);
+                    Navigator.of(context).pop(task);
+                  },
+                ),
+              ],
+            );
+          },
         );
       },
     );

@@ -15,6 +15,7 @@ class Task {
   String? detail;
   List<StatusChange> statusHistory = [];
   Map<String, int> dailyElapsedSeconds = {};
+  DateTime? plannedStartDate; // 着手予定日
 
   Task(this.name,
       {this.status = TaskStatus.newTask,
@@ -23,7 +24,8 @@ class Task {
       this.isVisible = true,
       this.startTime = null,
       this.detail = null,
-      required this.createTime});
+      required this.createTime,
+      this.plannedStartDate});
 
   DateTime? getEndTime() {
     //var sortedHistory = List<StatusChange>.from(statusHistory)
@@ -159,6 +161,7 @@ class Task {
         'statusHistory': statusHistory.map((e) => e.toJson()).toList(),
         'createTime': createTime.toIso8601String(),
         'dailyElapsedSeconds': dailyElapsedSeconds,
+        'plannedStartDate': plannedStartDate?.toIso8601String(),
       };
 
   static Task fromJson(Map<String, dynamic> json) {
@@ -173,6 +176,9 @@ class Task {
       createTime: json['createTime'] != null
           ? DateTime.parse(json['createTime'] as String)
           : DateTime.now(),
+      plannedStartDate: json['plannedStartDate'] != null
+          ? DateTime.parse(json['plannedStartDate'] as String)
+          : null,
     );
 
     if (json['statusHistory'] != null) {

@@ -14,7 +14,7 @@ class TaskDetailScreen extends ConsumerWidget {
   final TextEditingController _elapsedMinuteController =
       TextEditingController(); // Change to minute
   final TextEditingController _startTimeController = TextEditingController();
-  final TextEditingController _endTimeController = TextEditingController();
+  //final TextEditingController _endTimeController = TextEditingController();
 
   TaskDetailScreen({required this.task}) {}
 
@@ -32,12 +32,14 @@ class TaskDetailScreen extends ConsumerWidget {
     _elapsedMinuteController.text =
         (task.elapsedSecond / 60).round().toString(); // Convert to minutes
 
-    if (task.startTime != null) {
-      _startTimeController.text = DateFormat('y/MM/dd HH:mm').format(task.startTime!);
+    if (task.plannedStartDate != null) {
+      _startTimeController.text = DateFormat('y/MM/dd').format(task.plannedStartDate!);
     }
+
+    /*
     if (task.getEndTime() != null) {
       _endTimeController.text = DateFormat('y/MM/dd HH:mm').format(task.getEndTime()!);
-    }
+    }*/
 
     return WillPopScope(
       onWillPop: () => _saveAndPop(context, ref),
@@ -86,10 +88,11 @@ class TaskDetailScreen extends ConsumerWidget {
                         child: TextField(
                           controller: _startTimeController,
                           decoration: InputDecoration(
-                            labelText: "開始時間",
+                            labelText: "着手予定日",
                           ),
                         ),
                       ),
+                      /*
                       SizedBox(
                         width: 150,
                         child: TextField(
@@ -98,7 +101,7 @@ class TaskDetailScreen extends ConsumerWidget {
                             labelText: "終了時間",
                           ),
                         ),
-                      ),
+                      ),*/
                     ],
                   ),
                   SizedBox(
@@ -157,7 +160,7 @@ class TaskDetailScreen extends ConsumerWidget {
     task.name = name;
     task.elapsedSecond = elapsedSeconds;
     try {
-      task.startTime = DateFormat('y/MM/dd HH:mm').parse(_startTimeController.text);
+      task.plannedStartDate = DateFormat('y/MM/dd').parse(_startTimeController.text);
     } catch (e) {
       print("Invalid start time format");
     }
