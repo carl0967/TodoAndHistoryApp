@@ -108,9 +108,11 @@ class HomeScreen extends ConsumerWidget {
                           ),
                           IconButton(
                               onPressed: () {
-                                ref.read(taskListProvider.notifier).changeVisible(task, false);
+                                ref
+                                    .read(taskListProvider.notifier)
+                                    .changeStatus(task, TaskStatus.paused);
                               },
-                              icon: const Icon(Icons.visibility_off)),
+                              icon: const Icon(Icons.stop_circle_outlined)),
                           IconButton(
                             icon: const Icon(Icons.delete),
                             onPressed: () async {
