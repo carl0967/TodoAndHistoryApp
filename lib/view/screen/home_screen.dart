@@ -56,9 +56,30 @@ class HomeScreen extends ConsumerWidget {
                         enabled: task.isHeader ? false : true,
                         trailing: !task.isHeader
                             ? SizedBox(
-                                width: 96,
+                                width: 32 * 4,
                                 child: Row(
                                   children: [
+                                    IconButton(
+                                      icon: Icon(
+                                          Icons.arrow_forward), // Replace with your desired icon
+                                      onPressed: () {
+                                        TaskStatus nextStatus = TaskStatus.inProgress;
+                                        // Check the current status and update accordingly
+                                        if (task.status == TaskStatus.newTask) {
+                                          nextStatus = TaskStatus.inProgress;
+                                        } else if (task.status == TaskStatus.inProgress) {
+                                          nextStatus = TaskStatus.completed;
+                                          ref
+                                              .read(taskListProvider.notifier)
+                                              .changeVisible(task, false);
+                                        }
+
+                                        // Update the task in the provider or state management logic
+                                        ref
+                                            .read(taskListProvider.notifier)
+                                            .changeStatus(task, nextStatus);
+                                      },
+                                    ),
                                     IconButton(
                                         onPressed: () {
                                           ref

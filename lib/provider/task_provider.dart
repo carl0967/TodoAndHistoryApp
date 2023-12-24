@@ -92,12 +92,11 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     log.info("status changed. $oldStatus -> $newStatus");
 
     if (oldStatus != newStatus) {
-      _changeStatus(item, newStatus);
+      changeStatus(item, newStatus);
     }
-    saveTasksToPrefs();
   }
 
-  void _changeStatus(Task task, TaskStatus newStatus) {
+  void changeStatus(Task task, TaskStatus newStatus) {
     if (newStatus == TaskStatus.inProgress) {
       task.startTime = DateTime.now();
     } else if (newStatus == TaskStatus.completed) {
@@ -116,6 +115,8 @@ class TaskNotifier extends StateNotifier<List<Task>> {
 
     task.statusHistory.add(StatusChange(DateTime.now(), task.status, newStatus));
     task.status = newStatus;
+
+    saveTasksToPrefs();
   }
 
   void removeTask(Task task) {
