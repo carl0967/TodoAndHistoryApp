@@ -3,6 +3,23 @@ import 'package:src/model/status_change.dart';
 
 enum TaskStatus { newTask, inProgress, paused, completed }
 
+extension TaskStatusExtension on TaskStatus {
+  String get statusName {
+    switch (this) {
+      case TaskStatus.newTask:
+        return "新規";
+      case TaskStatus.inProgress:
+        return "進行中";
+      case TaskStatus.paused:
+        return "中断";
+      case TaskStatus.completed:
+        return "完了";
+      default:
+        return "Unknown";
+    }
+  }
+}
+
 class Task {
   String name;
   DateTime createTime;

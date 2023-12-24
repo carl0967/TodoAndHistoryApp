@@ -36,73 +36,7 @@ class HomeScreen extends ConsumerWidget {
               onReorder: (oldIndex, newIndex) {
                 ref.read(taskListProvider.notifier).reorder(oldIndex, newIndex);
               },
-              children: tasks
-                  .where((task) => task.isVisible)
-                  .map((task) => ListTile(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TaskDetailScreen(task: task),
-                            ),
-                          );
-                        },
-                        key: ValueKey(task),
-                        title: Text(task.name),
-                        subtitle: !task.isHeader && task.getSubTitle() != null
-                            ? Text(task.getSubTitle()!)
-                            : null,
-                        tileColor: task.isHeader ? Colors.grey[200] : null,
-                        enabled: task.isHeader ? false : true,
-                        trailing: !task.isHeader
-                            ? SizedBox(
-                                width: 32 * 4,
-                                child: Row(
-                                  children: [
-                                    IconButton(
-                                      icon: Icon(
-                                          Icons.arrow_forward), // Replace with your desired icon
-                                      onPressed: () {
-                                        TaskStatus nextStatus = TaskStatus.inProgress;
-                                        // Check the current status and update accordingly
-                                        if (task.status == TaskStatus.newTask) {
-                                          nextStatus = TaskStatus.inProgress;
-                                        } else if (task.status == TaskStatus.inProgress) {
-                                          nextStatus = TaskStatus.completed;
-                                          ref
-                                              .read(taskListProvider.notifier)
-                                              .changeVisible(task, false);
-                                        }
-
-                                        // Update the task in the provider or state management logic
-                                        ref
-                                            .read(taskListProvider.notifier)
-                                            .changeStatus(task, nextStatus);
-                                      },
-                                    ),
-                                    IconButton(
-                                        onPressed: () {
-                                          ref
-                                              .read(taskListProvider.notifier)
-                                              .changeVisible(task, false);
-                                        },
-                                        icon: const Icon(Icons.visibility_off)),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      onPressed: () async {
-                                        bool? shouldDelete =
-                                            await _showDeleteConfirmationDialog(context);
-                                        if (shouldDelete == true) {
-                                          ref.read(taskListProvider.notifier).removeTask(task);
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : null,
-                      ))
-                  .toList(),
+              children: _list(tasks, context, ref),
             ),
           ),
         ],
@@ -118,6 +52,80 @@ class HomeScreen extends ConsumerWidget {
         tooltip: 'タスクを追加',
       ),
     );
+  }
+
+  List<Widget> _list(List<Task> tasks, BuildContext context, WidgetRef ref) {
+    var sortedTasks = tasks.where((task) => task.isVisible && !task.isHeader).toList() // Listに変換
+      ..sort((a, b) {
+        // 並び替えの優先順位を定義
+        const order = {
+          TaskStatus.inProgress: 1,
+          TaskStatus.paused: 2,
+          TaskStatus.newTask: 3,
+          TaskStatus.completed: 4,
+        };
+
+        // タスクのステータスに基づいて並び替え
+        return order[a.status]!.compareTo(order[b.status]!);
+      });
+
+    return sortedTasks
+        .map((task) => ListTile(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TaskDetailScreen(task: task),
+                  ),
+                );
+              },
+              key: ValueKey(task),
+              title: Text(task.status.statusName + " " + task.name),
+              subtitle:
+                  !task.isHeader && task.getSubTitle() != null ? Text(task.getSubTitle()!) : null,
+              tileColor: task.isHeader ? Colors.grey[200] : null,
+              enabled: task.isHeader ? false : true,
+              trailing: !task.isHeader
+                  ? SizedBox(
+                      width: 32 * 4,
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.arrow_forward), // Replace with your desired icon
+                            onPressed: () {
+                              TaskStatus nextStatus = TaskStatus.inProgress;
+                              // Check the current status and update accordingly
+                              if (task.status == TaskStatus.newTask) {
+                                nextStatus = TaskStatus.inProgress;
+                              } else if (task.status == TaskStatus.inProgress) {
+                                nextStatus = TaskStatus.completed;
+                                ref.read(taskListProvider.notifier).changeVisible(task, false);
+                              }
+
+                              // Update the task in the provider or state management logic
+                              ref.read(taskListProvider.notifier).changeStatus(task, nextStatus);
+                            },
+                          ),
+                          IconButton(
+                              onPressed: () {
+                                ref.read(taskListProvider.notifier).changeVisible(task, false);
+                              },
+                              icon: const Icon(Icons.visibility_off)),
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () async {
+                              bool? shouldDelete = await _showDeleteConfirmationDialog(context);
+                              if (shouldDelete == true) {
+                                ref.read(taskListProvider.notifier).removeTask(task);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    )
+                  : null,
+            ))
+        .toList();
   }
 
   Future<bool?> _showDeleteConfirmationDialog(BuildContext context) async {

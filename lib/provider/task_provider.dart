@@ -116,6 +116,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     task.statusHistory.add(StatusChange(DateTime.now(), task.status, newStatus));
     task.status = newStatus;
 
+    state = state.toList();
     saveTasksToPrefs();
   }
 
