@@ -34,6 +34,18 @@ class _AllTaskScreenState extends ConsumerState<AllTaskScreen> {
           .toList();
     }
 
+    var sortedTasks = tasks.toList()
+      ..sort((a, b) {
+        // 完了しているタスクの場合、完了時刻で比較
+        var aTime = a.getEndTime() ?? a.createTime;
+        var bTime = b.getEndTime() ?? b.createTime;
+
+        // どちらかが未完了の場合、生成時刻で比較
+        return bTime.compareTo(aTime);
+      });
+
+    sortedTasks = sortedTasks.where((element) => !element.isHeader).toList();
+
     return Scaffold(
       body: Column(
         children: [
@@ -61,10 +73,8 @@ class _AllTaskScreenState extends ConsumerState<AllTaskScreen> {
           ),
           Expanded(
             child: ReorderableListView(
-              onReorder: (oldIndex, newIndex) {
-                ref.read(taskListProvider.notifier).reorder(oldIndex, newIndex);
-              },
-              children: tasks
+              onReorder: (oldIndex, newIndex) {},
+              children: sortedTasks
                   .map((task) => ListTile(
                         onTap: () {
                           Navigator.push(
