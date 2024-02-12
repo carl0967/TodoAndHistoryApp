@@ -33,6 +33,12 @@ class Task {
   List<StatusChange> statusHistory = [];
   Map<String, int> dailyElapsedSeconds = {};
   DateTime? plannedStartDate; // 着手予定日
+  String get plannedStartDateText {
+    if (plannedStartDate == null) return "";
+
+    var dateText = DateFormat('M/dd').format(plannedStartDate!);
+    return "($dateText)";
+  }
 
   Task(this.name,
       {this.status = TaskStatus.newTask,

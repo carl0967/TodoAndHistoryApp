@@ -19,6 +19,7 @@ class HomeScreen extends ConsumerWidget {
           // ドロップダウンメニュー
           DropdownButton<String>(
             value: dropdownValue,
+            focusNode: FocusNode(canRequestFocus: false),
             onChanged: (String? newValue) {
               dropdownValue = newValue ?? "";
               bool todayOnly = dropdownValue == "今日";
@@ -98,7 +99,7 @@ class HomeScreen extends ConsumerWidget {
                 );
               },
               key: ValueKey(task),
-              title: Text(task.status.statusName + " " + task.name),
+              title: Text("【${task.status.statusName}】 ${task.plannedStartDateText} ${task.name}"),
               subtitle:
                   !task.isHeader && task.getSubTitle() != null ? Text(task.getSubTitle()!) : null,
               tileColor: task.isHeader ? Colors.grey[200] : null,
@@ -215,7 +216,7 @@ class HomeScreen extends ConsumerWidget {
                       // 選択された日付を表示
                       Text(selectedDate != null
                           ? DateFormat('yyyy/MM/dd').format(selectedDate!)
-                          : '日付を選択'),
+                          : '予定開始日を選択'),
                     ],
                   ),
                   TextField(
