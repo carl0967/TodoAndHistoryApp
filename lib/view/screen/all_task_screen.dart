@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -134,13 +131,6 @@ class _AllTaskScreenState extends ConsumerState<AllTaskScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await _exportStringToFile(context, ref);
-        },
-        child: Icon(Icons.save_alt),
-        tooltip: 'エクスポート',
-      ),
     );
   }
 
@@ -167,62 +157,5 @@ class _AllTaskScreenState extends ConsumerState<AllTaskScreen> {
         );
       },
     );
-  }
-
-  Future<void> _exportStringToFile(BuildContext context, WidgetRef ref) async {
-    // 保存する文字列
-    String contentToSave = ref.read(taskListProvider.notifier).toJson();
-
-    try {
-      // ディレクトリを選択
-      String? directoryPath = await FilePicker.platform.getDirectoryPath();
-      if (directoryPath == null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('ディレクトリ選択がキャンセルされました')));
-        return;
-      }
-      Directory directory = Directory(directoryPath);
-
-      if (directory == null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('ディレクトリ選択がキャンセルされました')));
-        return;
-      }
-
-      // ファイルの保存先を選択するダイアログを表示
-      TextEditingController fileNameController = TextEditingController();
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("ファイル名を入力してください"),
-            content: TextField(
-              controller: fileNameController,
-              decoration: InputDecoration(
-                labelText: "ファイル名",
-                hintText: "例：myfile.txt",
-              ),
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: Text("キャンセル"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: Text("保存"),
-                onPressed: () async {
-                  String filePath = '${directory.path}/${fileNameController.text}';
-                  await File(filePath).writeAsString(contentToSave);
-                  Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('エクスポート完了!')));
-                },
-              ),
-            ],
-          );
-        },
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('エクスポートエラー: $e')));
-    }
   }
 }
