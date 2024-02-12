@@ -54,18 +54,36 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
+  void _deleteTask(BuildContext context, Task task, WidgetRef ref) async {
+    bool? shouldDelete = await _showDeleteConfirmationDialog(context);
+    if (shouldDelete == true) {
+      ref.read(taskListProvider.notifier).removeTask(task);
+    }
+  }
+
+  void _moveNextStatus(BuildContext context, Task task, WidgetRef ref) {
+    TaskStatus nextStatus = TaskStatus.inProgress;
+    // Check the current status and update accordingly
+    if (task.status == TaskStatus.newTask) {
+      nextStatus = TaskStatus.inProgress;
+    } else if (task.status == TaskStatus.inProgress) {
+      nextStatus = TaskStatus.completed;
+      ref.read(taskListProvider.notifier).changeVisible(task, false);
+    }
+
+    // Update the task in the provider or state management logic
+    ref.read(taskListProvider.notifier).changeStatus(task, nextStatus);
+  }
+
   List<Widget> _list(List<Task> tasks, BuildContext context, WidgetRef ref) {
-    var sortedTasks = tasks.where((task) => task.isVisible && !task.isHeader).toList() // Listに変換
+    var sortedTasks = tasks.where((task) => task.isVisible && !task.isHeader).toList()
       ..sort((a, b) {
-        // 並び替えの優先順位を定義
         const order = {
           TaskStatus.inProgress: 1,
           TaskStatus.paused: 2,
           TaskStatus.newTask: 3,
           TaskStatus.completed: 4,
         };
-
-        // タスクのステータスに基づいて並び替え
         return order[a.status]!.compareTo(order[b.status]!);
       });
 
@@ -86,44 +104,45 @@ class HomeScreen extends ConsumerWidget {
               tileColor: task.isHeader ? Colors.grey[200] : null,
               enabled: task.isHeader ? false : true,
               trailing: !task.isHeader
-                  ? SizedBox(
-                      width: 32 * 4,
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.arrow_forward), // Replace with your desired icon
-                            onPressed: () {
-                              TaskStatus nextStatus = TaskStatus.inProgress;
-                              // Check the current status and update accordingly
-                              if (task.status == TaskStatus.newTask) {
-                                nextStatus = TaskStatus.inProgress;
-                              } else if (task.status == TaskStatus.inProgress) {
-                                nextStatus = TaskStatus.completed;
-                                ref.read(taskListProvider.notifier).changeVisible(task, false);
-                              }
-
-                              // Update the task in the provider or state management logic
-                              ref.read(taskListProvider.notifier).changeStatus(task, nextStatus);
-                            },
-                          ),
-                          IconButton(
-                              onPressed: () {
-                                ref
-                                    .read(taskListProvider.notifier)
-                                    .changeStatus(task, TaskStatus.paused);
-                              },
-                              icon: const Icon(Icons.stop_circle_outlined)),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () async {
-                              bool? shouldDelete = await _showDeleteConfirmationDialog(context);
-                              if (shouldDelete == true) {
-                                ref.read(taskListProvider.notifier).removeTask(task);
-                              }
-                            },
-                          ),
-                        ],
-                      ),
+                  ? PopupMenuButton<String>(
+                      onSelected: (String value) {
+                        switch (value) {
+                          case 'nextStatus':
+                            _moveNextStatus(context, task, ref);
+                            break;
+                          case 'pause':
+                            ref
+                                .read(taskListProvider.notifier)
+                                .changeStatus(task, TaskStatus.paused);
+                            break;
+                          case 'end':
+                            ref
+                                .read(taskListProvider.notifier)
+                                .changeStatus(task, TaskStatus.completed);
+                            break;
+                          case 'delete':
+                            _deleteTask(context, task, ref);
+                            break;
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                        const PopupMenuItem<String>(
+                          value: 'nextStatus',
+                          child: Text('次のステータスへ'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'pause',
+                          child: Text('停止'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'end',
+                          child: Text('完了'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'delete',
+                          child: Text('削除'),
+                        ),
+                      ],
                     )
                   : null,
             ))
