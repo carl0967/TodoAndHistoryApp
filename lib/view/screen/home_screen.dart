@@ -117,6 +117,7 @@ class HomeScreen extends ConsumerWidget {
                                 .changeStatus(task, TaskStatus.paused);
                             break;
                           case 'end':
+                            ref.read(taskListProvider.notifier).changeVisible(task, false);
                             ref
                                 .read(taskListProvider.notifier)
                                 .changeStatus(task, TaskStatus.completed);
