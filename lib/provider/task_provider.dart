@@ -150,17 +150,21 @@ class TaskNotifier extends StateNotifier<List<Task>> {
 
   void filter(bool todayOnly) {
     if (todayOnly) {
-      for (var task in state.where((element) => element.isVisible)) {
+      for (var task in state
+          .where((element) => element.isVisible && element.status != TaskStatus.completed)) {
         var startDate = task.plannedStartDate;
+        if (startDate == null) {
+          task.isVisible = false;
+        }
         if (startDate != null && startDate.isAfter(DateTime.now())) {
           task.isVisible = false;
         }
       }
     } else {
-      for (var task in state.where((element) => !element.isVisible)) {
+      for (var task in state
+          .where((element) => !element.isVisible && element.status != TaskStatus.completed)) {
         var startDate = task.plannedStartDate;
-        if (startDate != null &&
-            startDate.isAfter(DateTime.now()) &&
+        if ((startDate == null || startDate.isAfter(DateTime.now())) &&
             task.status != TaskStatus.completed) {
           task.isVisible = true;
         }

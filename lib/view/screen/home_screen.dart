@@ -178,7 +178,7 @@ class HomeScreen extends ConsumerWidget {
 
   Future<Task?> _showAddTaskDialog(BuildContext context) async {
     TextEditingController taskController = TextEditingController();
-    DateTime? selectedDate; // 選択された日付を保持する変数
+    DateTime? selectedDate = DateTime.now(); // 選択された日付を保持する変数
 
     return showDialog<Task>(
       context: context,
@@ -191,7 +191,7 @@ class HomeScreen extends ConsumerWidget {
             Future<void> _selectPlannedStartDate() async {
               final DateTime? picked = await showDatePicker(
                 context: context,
-                initialDate: selectedDate ?? DateTime.now(), // 初期選択日付
+                initialDate: selectedDate,
                 firstDate: DateTime(2000),
                 lastDate: DateTime(2025),
               );
@@ -218,6 +218,12 @@ class HomeScreen extends ConsumerWidget {
                       Text(selectedDate != null
                           ? DateFormat('yyyy/MM/dd').format(selectedDate!)
                           : '予定開始日を選択'),
+                      IconButton(
+                        icon: Icon(Icons.clear),
+                        onPressed: () {
+                          setState(() => selectedDate = null); // 日付をクリア
+                        },
+                      ),
                     ],
                   ),
                   TextField(
