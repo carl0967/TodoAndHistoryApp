@@ -120,10 +120,11 @@ class TabScreen extends ConsumerWidget {
                   child: Tab(icon: Icon(Icons.home), text: "Home")),
               Container(
                   width: MediaQuery.of(context).size.width / 4,
-                  child: Tab(icon: Icon(Icons.history), text: "History")),
+                  child: Tab(icon: Icon(Icons.history), text: "Daily History")),
               Container(
                   width: MediaQuery.of(context).size.width / 4,
-                  child: Tab(icon: Icon(Icons.align_horizontal_left_outlined), text: "All")),
+                  child:
+                      Tab(icon: Icon(Icons.align_horizontal_left_outlined), text: "All History")),
             ],
             isScrollable: true,
           ),

@@ -55,7 +55,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
 
   void addTask(Task task) {
     //新規の位置に追加
-    state = [...state]..insert(1, task);
+    state = [...state]..insert(0, task);
     saveTasksToPrefs();
   }
 
@@ -66,34 +66,15 @@ class TaskNotifier extends StateNotifier<List<Task>> {
   }
 
   void reorder(int oldIndex, int newIndex) {
+    log.info("oldIndex:$oldIndex,newIndex:$newIndex");
+
+    // 要素を削除する前に、newIndexを調整する
     if (newIndex > oldIndex) {
       newIndex -= 1;
     }
 
-    log.info("oldIndex:$oldIndex,newIndex:$newIndex");
-
     final item = state.removeAt(oldIndex);
     state = [...state]..insert(newIndex, item);
-
-    for (var i = 0; i < state.length; i++) {
-      log.info("$i: ${state[i].name}");
-    }
-
-    var newStatus = TaskStatus.newTask;
-    for (var i = newIndex; i > 0; i--) {
-      log.info("$i: ${state[i].name}");
-      if (state[i].isHeader) {
-        newStatus = state[i].status;
-        break;
-      }
-    }
-    //ステータスが変更になった場合
-    var oldStatus = item.status;
-    log.info("status changed. $oldStatus -> $newStatus");
-
-    if (oldStatus != newStatus) {
-      changeStatus(item, newStatus);
-    }
   }
 
   void changeStatus(Task task, TaskStatus newStatus) {

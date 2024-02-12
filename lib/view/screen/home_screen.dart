@@ -90,64 +90,58 @@ class HomeScreen extends ConsumerWidget {
 
     return sortedTasks
         .map((task) => ListTile(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TaskDetailScreen(task: task),
-                  ),
-                );
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TaskDetailScreen(task: task),
+                ),
+              );
+            },
+            key: ValueKey(task),
+            title: Text("【${task.status.statusName}】 ${task.plannedStartDateText} ${task.name}"),
+            subtitle: !task.isHeader && task.getSubTitle() != null
+                ? Text(task.getSubTitle() ?? "")
+                : null,
+            tileColor: task.isHeader ? Colors.grey[200] : null,
+            enabled: task.isHeader ? false : true,
+            trailing: PopupMenuButton<String>(
+              onSelected: (String value) {
+                switch (value) {
+                  case 'nextStatus':
+                    _moveNextStatus(context, task, ref);
+                    break;
+                  case 'pause':
+                    ref.read(taskListProvider.notifier).changeStatus(task, TaskStatus.paused);
+                    break;
+                  case 'end':
+                    ref.read(taskListProvider.notifier).changeVisible(task, false);
+                    ref.read(taskListProvider.notifier).changeStatus(task, TaskStatus.completed);
+                    break;
+                  case 'delete':
+                    _deleteTask(context, task, ref);
+                    break;
+                }
               },
-              key: ValueKey(task),
-              title: Text("【${task.status.statusName}】 ${task.plannedStartDateText} ${task.name}"),
-              subtitle:
-                  !task.isHeader && task.getSubTitle() != null ? Text(task.getSubTitle()!) : null,
-              tileColor: task.isHeader ? Colors.grey[200] : null,
-              enabled: task.isHeader ? false : true,
-              trailing: !task.isHeader
-                  ? PopupMenuButton<String>(
-                      onSelected: (String value) {
-                        switch (value) {
-                          case 'nextStatus':
-                            _moveNextStatus(context, task, ref);
-                            break;
-                          case 'pause':
-                            ref
-                                .read(taskListProvider.notifier)
-                                .changeStatus(task, TaskStatus.paused);
-                            break;
-                          case 'end':
-                            ref.read(taskListProvider.notifier).changeVisible(task, false);
-                            ref
-                                .read(taskListProvider.notifier)
-                                .changeStatus(task, TaskStatus.completed);
-                            break;
-                          case 'delete':
-                            _deleteTask(context, task, ref);
-                            break;
-                        }
-                      },
-                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                        const PopupMenuItem<String>(
-                          value: 'nextStatus',
-                          child: Text('次のステータスへ'),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'pause',
-                          child: Text('停止'),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'end',
-                          child: Text('完了'),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'delete',
-                          child: Text('削除'),
-                        ),
-                      ],
-                    )
-                  : null,
-            ))
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                const PopupMenuItem<String>(
+                  value: 'nextStatus',
+                  child: Text('次のステータスへ'),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'pause',
+                  child: Text('停止'),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'end',
+                  child: Text('完了'),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'delete',
+                  child: Text('削除'),
+                ),
+              ],
+            )))
         .toList();
   }
 
